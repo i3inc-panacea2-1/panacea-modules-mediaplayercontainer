@@ -11,6 +11,9 @@
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
+    <UserControl.DataContext>
+        <x:Type Type="local:MediaPlayerContainerViewModel" />
+    </UserControl.DataContext>
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -19,46 +22,14 @@
             </ResourceDictionary.MergedDictionaries>
             <converters:PercentageConverter x:Key="PercentageConverter" />
             <converters:SecondsToStringConverter x:Key="SecondsToStringConverter" />
-            <Style x:Key="PlayerButton" TargetType="Button">
+            <Style  TargetType="Button" BasedOn="{StaticResource SimpleButton}">
                 <Style.Setters>
-                    <Setter Property="Margin" Value="0" />
-                    <Setter Property="Padding" Value="1" />
-                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="Padding" Value="0" />
                     <Setter Property="Foreground" Value="White" />
-                    <Setter Property="HorizontalContentAlignment" Value="Center" />
-                    <Setter Property="VerticalContentAlignment" Value="Center" />
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type ButtonBase}">
 
-                                <Border
-                                Name="ButtonBackground"
-                                VerticalAlignment="{TemplateBinding VerticalAlignment}"
-                                Background="{TemplateBinding Background}">
-                                    <ContentPresenter
-                                    x:Name="GelButtonContent"
-                                    Margin="{TemplateBinding Padding}"
-                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                    Content="{TemplateBinding Content}"
-                                    TextBlock.Foreground="{TemplateBinding Foreground}" />
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="BorderBrush" Value="Cyan" />
-                                    </Trigger>
-                                    <Trigger Property="IsPressed" Value="True">
-                                        <Setter TargetName="ButtonBackground" Property="Background" Value="#33ffffff" />
-                                    </Trigger>
-                                    <Trigger Property="IsEnabled" Value="False">
-                                        <Setter Property="Foreground" Value="#66ffffff" />
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
                 </Style.Setters>
             </Style>
+           
             <Style x:Key="PlayerToggleButton" TargetType="ToggleButton">
                 <Style.Setters>
                     <Setter Property="Margin" Value="0" />
@@ -109,14 +80,16 @@
                        VerticalAlignment="Center"
                        HorizontalAlignment="Center"/>
         </Grid>
-        <Grid Name="ContentGrid">
+        <Grid Visibility="{Binding ContentGridVisibility}">
         <Grid.RowDefinitions>
             <RowDefinition  />
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         <Grid>
             <Image Name="SelectedImage" />
-            <Border Name="VideoContainer" />
+                <Border Name="VideoContainer" >
+                    <ContentPresenter Content="{Binding CurrentVideoControl}"/>
+                </Border>
         </Grid>
 
         <Grid
@@ -130,13 +103,12 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
             <TextBlock
-                Name="status"
                 FontSize="{DynamicResource FontSize-Small}"
                 Foreground="#77ffffff"
                 Text="{multilinguality:Translate 'Now Playing',
                                                  'core'}" />
             <TextBlock
-                Name="nowplaying"
+                Text="{Binding NowPlayingText}"
                 Grid.Row="1"
                 MaxHeight="300"
                 FontSize="{DynamicResource FontSize-Normal}"
@@ -152,14 +124,14 @@
                     <ColumnDefinition Width="auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock
-                    Name="currentTime"
+                    Text="{Binding CurrentTimeText}"
                     Margin="0,0,5,0"
                     VerticalAlignment="Center"
                     FontSize="{DynamicResource FontSize-Small}"
                     Foreground="White"
-                    Text="Time"/>
+                    />
                 <Slider
-                    Name="slider"
+                    
                     Grid.Column="1"
                     Margin="0,5"
                     VerticalAlignment="Center"
@@ -168,9 +140,9 @@
                     Foreground="{DynamicResource ColorError}"
                     Maximum="100"
                     Minimum="0"
-                    Value="50" />
+                    Value="{Binding SeekbarValue}" />
                 <TextBlock
-                    Name="totalTime"
+                    Text="{Binding TotalTimeText}"
                     Grid.Column="2"
                     Margin="5,0,0,0"
                     VerticalAlignment="Center"
@@ -200,32 +172,28 @@
                 </Grid.ColumnDefinitions>
 
                 <Button
-                    Name="PauseButton"
                     Grid.Column="0"
-                    Style="{StaticResource PlayerButton}"
-                    Click="PauseButton_Click">
-                    <pcontrols:MaterialIcon Name="PauseButtonIcon" Icon="play_arrow" />
+                    Visibility="{Binding PauseButtonVisibility}"
+                    Command="{Binding PauseCommand}">
+                    <pcontrols:MaterialIcon Name="PauseButtonIcon" Icon="{Binding PauseButtonIcon}" />
                 </Button>
                 <Button
                     Name="StopButton"
                     Grid.Column="1"
-                    Style="{StaticResource PlayerButton}"
-                    Click="StopButton_Click">
+                    Command="{Binding StopCommand}">
                     <pcontrols:MaterialIcon Name="StopButtonIcon" Icon="stop" />
                 </Button>
                 <Button
                     Name="PreviousButton"
                     Grid.Column="2"
-                    Style="{StaticResource PlayerButton}"
-                    Click="PreviousButton_Click">
+                    Command="{Binding PreviousCommand}">
                     <pcontrols:MaterialIcon Name="PreviousButtonIcon" Icon="navigate_before" />
                 </Button>
 
                 <Button
                     Name="NextButton"
                     Grid.Column="3"
-                    Style="{StaticResource PlayerButton}"
-                    Click="NextButton_Click">
+                    Command="{Binding NextCommand}">
 
                     <pcontrols:MaterialIcon Name="NextButtonIcon" Icon="navigate_next" />
 
@@ -265,8 +233,7 @@
 
                 <Button
                     Name="PipButton"
-                    Grid.Column="9"
-                    Style="{StaticResource PlayerButton}">
+                    Grid.Column="9">
                     <pcontrols:MaterialIcon
                         Name="PipButtonIcon"
                         Margin="5"
@@ -276,8 +243,7 @@
 
                 <Button
                     Name="SwitchPlayerButton"
-                    Grid.Column="10"
-                    Style="{StaticResource PlayerButton}">
+                    Grid.Column="10">
                     <pcontrols:MaterialIcon
                         Name="ScreenCastButtonIcon"
                         Margin="6"
@@ -287,8 +253,7 @@
                 <Button
                     Name="FullscreenButton"
                     Grid.Column="11"
-                    Style="{StaticResource PlayerButton}"
-                    Click="FullscreenButton_Click">
+                    >
                     <pcontrols:MaterialIcon
                         Name="FullscreenButtonIcon"
                         Margin="2"

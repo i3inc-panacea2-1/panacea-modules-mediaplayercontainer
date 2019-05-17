@@ -21,10 +21,10 @@ namespace TestApp
         {
             InitializeComponent();
             _loader = new PluginLoader();
-            _core = new PanaceaServices(null, _loader);
+            _core = new PanaceaServices(null, null, _loader);
             _loader.LoadPlugin(new MediaPlayerContainer(_core));
             _loader.LoadPlugin(new SampleMediaPlayer());
-            _loader.LoadPlugin(new UiManager(this.Container));
+            _loader.LoadPlugin(new UiManagerPlugin(this.Container));
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)

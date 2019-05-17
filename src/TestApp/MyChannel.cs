@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TestApp
 {
-    public class MyChannel : Channel
+    public class MyChannel : MediaItem
     {
         public override string GetExtras()
         {

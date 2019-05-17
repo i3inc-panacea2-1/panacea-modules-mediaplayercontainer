@@ -24,18 +24,18 @@ namespace TestApp
     public partial class SampleMediaPlayer : UserControl, IMediaPlayerPlugin
     {
         const int DURATION = 10;
-        DispatcherTimer _timer = new DispatcherTimer();
+        DispatcherTimer _timer = new DispatcherTimer(DispatcherPriority.Render);
         public SampleMediaPlayer()
         {
             InitializeComponent();
             _timer.Tick += _timer_Tick;
-            _timer.Interval = TimeSpan.FromSeconds(1);
+            _timer.Interval = TimeSpan.FromMilliseconds(500);
         }
-
 
         private void _timer_Tick(object sender, EventArgs e)
         {
-            Position+=1f/(float)DURATION;
+            Console.WriteLine("dur");
+            Position+=1f/DURATION / 2;
             if(Position >= 1)
             {
                 _timer.Stop();
@@ -111,7 +111,7 @@ namespace TestApp
             _timer.Stop();
         }
 
-        public void Play(Channel channel)
+        public void Play(MediaItem channel)
         {
             Stop();
             Position = 0;

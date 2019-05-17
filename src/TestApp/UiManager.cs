@@ -1,4 +1,5 @@
 ﻿using Panacea.Modularity.UiManager;
+using Panacea.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,18 +10,52 @@ using System.Windows.Controls;
 
 namespace TestApp
 {
-    class UiManager : IUiManagerPlugin
+    class UiManagerPlugin : IUiManagerPlugin
     {
         private readonly ContentControl _content;
 
-        public UiManager(ContentControl window)
+        public UiManagerPlugin(ContentControl window)
         {
             _content = window;
         }
 
-        public IReadOnlyList<FrameworkElement> History => throw new NotImplementedException();
+        public Task BeginInit()
+        {
+            return Task.CompletedTask;
+        }
 
-        public FrameworkElement CurrentPage => throw new NotImplementedException();
+        public void Dispose()
+        {
+            
+        }
+
+        public Task EndInit()
+        {
+            return Task.CompletedTask;
+        }
+
+        public IUiManager GetUiManager()
+        {
+            return new UiManager(_content);
+        }
+
+        public Task Shutdown()
+        {
+            return Task.CompletedTask;
+        }
+    }
+
+    class UiManager : IUiManager
+    {
+        public UiManager(ContentControl window)
+        {
+            _content = window;
+        }
+        private readonly ContentControl _content;
+
+        public IReadOnlyList<ViewModelBase> History => throw new NotImplementedException();
+
+        public ViewModelBase CurrentPage => throw new NotImplementedException();
 
         public bool IsNavigationDisabled { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
@@ -34,22 +69,9 @@ namespace TestApp
         public event EventHandler Paused;
         public event EventHandler Resumed;
 
-        public void AddToolButton(string text, string namesp, string iconUrl, Action action)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task BeginInit()
-        {
-            throw new NotImplementedException();
-        }
+   
 
         public void DisableFullscreen()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Dispose()
         {
             throw new NotImplementedException();
         }
@@ -73,12 +95,7 @@ namespace TestApp
         {
             throw new NotImplementedException();
         }
-
-        public Task EndInit()
-        {
-            throw new NotImplementedException();
-        }
-
+ 
         public void GoBack(int count = 1)
         {
             throw new NotImplementedException();
@@ -104,27 +121,24 @@ namespace TestApp
             throw new NotImplementedException();
         }
 
-        public void HidePopup(IPopup element)
+        public void HidePopup(ViewModelBase element)
         {
             throw new NotImplementedException();
         }
 
-        public void HidePopup(object element)
+        
+
+        public void Navigate(ViewModelBase page, bool cache = true)
+        {
+            _content.Content = page.View;
+        }
+
+        public void Notify(string message, Action del)
         {
             throw new NotImplementedException();
         }
 
-        public void Navigate(FrameworkElement page, bool cache = true)
-        {
-            _content.Content = page;
-        }
-
-        public FrameworkElement Notify(string message, Action del)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Notify(FrameworkElement c)
+        public void Notify(ViewModelBase c)
         {
             throw new NotImplementedException();
         }
@@ -134,7 +148,7 @@ namespace TestApp
             throw new NotImplementedException();
         }
 
-        public void Refrain(FrameworkElement c)
+        public void Refrain(ViewModelBase c)
         {
             throw new NotImplementedException();
         }
@@ -159,7 +173,7 @@ namespace TestApp
             throw new NotImplementedException();
         }
 
-        public void SetNavigationBarControl(FrameworkElement c)
+        public void SetNavigationBarControl(ViewModelBase c)
         {
             throw new NotImplementedException();
         }
@@ -174,7 +188,7 @@ namespace TestApp
             throw new NotImplementedException();
         }
 
-        public IPopup ShowPopup(FrameworkElement element, string title = null, PopupType popupType = PopupType.None, bool closable = true, bool trasnparent = true)
+        public void ShowPopup(ViewModelBase element, string title = null, PopupType popupType = PopupType.None, bool closable = true, bool trasnparent = true)
         {
             throw new NotImplementedException();
         }
@@ -185,6 +199,36 @@ namespace TestApp
         }
 
         public void Toast(string text, int timeout = 5000)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddMainPageControl(ViewModelBase c)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveMainPageControl(ViewModelBase c)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddNavigationBarControl(ViewModelBase c)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveNavigationBarControl(ViewModelBase c)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddSettingsControl(ViewModelBase c)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveSettingsControl(ViewModelBase c)
         {
             throw new NotImplementedException();
         }

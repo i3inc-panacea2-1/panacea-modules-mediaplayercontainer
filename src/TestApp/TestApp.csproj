@@ -35,23 +35,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Panacea.Core, Version=0.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Panacea.Core.0.0.1\lib\net462\Panacea.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Panacea.Models, Version=0.0.2.0, Culture=neutral, PublicKeyToken=null" />
-    <Reference Include="Panacea.Modularity, Version=0.0.2.0, Culture=neutral, PublicKeyToken=null" />
-    <Reference Include="Panacea.Modularity.Media, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Panacea.Modularity.Media.1.0.0\lib\net462\Panacea.Modularity.Media.dll</HintPath>
-    </Reference>
-    <Reference Include="Panacea.Modularity.MediaPlayerContainer, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Panacea.Modularity.MediaPlayerContainer.1.1.0\lib\net462\Panacea.Modularity.MediaPlayerContainer.dll</HintPath>
-    </Reference>
-    <Reference Include="Panacea.Modularity.UiManager, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Panacea.Modularity.UiManager.0.1.0\lib\net462\Panacea.Modularity.UiManager.dll</HintPath>
-    </Reference>
-    <Reference Include="Panacea.Multilinguality, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -113,7 +96,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -127,6 +109,20 @@
       <Project>{c6ad7bf0-2216-4fd1-818a-e24fc3f1e1e1}</Project>
       <Name>Panacea.Modules.MediaPlayerContainer</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Panacea.Modularity.Media">
+      <Version>3.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="Panacea.Modularity.MediaPlayerContainer">
+      <Version>2.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="Panacea.Modularity.UiManager">
+      <Version>8.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="Panacea.Multilinguality">
+      <Version>1.0.0</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

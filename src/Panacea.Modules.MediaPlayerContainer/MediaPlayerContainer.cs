@@ -15,7 +15,7 @@ namespace Panacea.Modules.MediaPlayerContainer
     {
         private readonly PanaceaServices _core;
         private readonly IPluginLoader _loader;
-        private MediaPlayerContainerControl _control;
+        private MediaPlayerContainerViewModel _control;
 
         public event EventHandler<Exception> Error;
         public event EventHandler<bool> IsSeekableChanged;
@@ -45,7 +45,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         private void CreateMediaControl()
         {
             if (_control != null) return;
-            _control = new MediaPlayerContainerControl(this);
+            _control = new MediaPlayerContainerViewModel(this);
         }
 
         private void _loader_PluginUnloaded(object sender, IPlugin e)
@@ -199,7 +199,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         public void Play(MediaRequest request)
         {
             var players = _loader.GetPlugins<IMediaPlayerPlugin>()
-                .Where(p => p.CanPlayChannel(request.Channel.GetType()))
+                .Where(p => p.CanPlayChannel(request.Media.GetType()))
                 .ToList();
 
             if (CurrentMediaPlayer != null && !players.Contains(CurrentMediaPlayer))
@@ -235,7 +235,7 @@ namespace Panacea.Modules.MediaPlayerContainer
                     break;
             }
 
-            CurrentMediaPlayer.Play(CurrentRequest.Channel);
+            CurrentMediaPlayer.Play(CurrentRequest.Media);
         }
 
         public void Stop()

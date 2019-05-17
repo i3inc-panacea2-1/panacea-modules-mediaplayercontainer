@@ -47,5 +47,10 @@ namespace TestApp
         {
             return _plugins.Where(p => typeof(T).IsAssignableFrom(p.GetType())).Cast<T>();
         }
+
+        public T GetPlugin<T>() where T : IPlugin
+        {
+            return _plugins.Where(p => typeof(T).IsAssignableFrom(p.GetType())).Cast<T>().First();
+        }
     }
 }
