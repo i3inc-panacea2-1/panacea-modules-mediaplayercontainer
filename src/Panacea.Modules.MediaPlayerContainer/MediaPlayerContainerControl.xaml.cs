@@ -12,5 +12,6 @@ namespace Panacea.Modules.MediaPlayerContainer
         {
             InitializeComponent();
         }
+
     }
 }

@@ -2,9 +2,9 @@
     x:Class="Panacea.Modules.MediaPlayerContainer.MediaPlayerContainerControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:Panacea.Modules.MediaPlayerContainer.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Panacea.Modules.MediaPlayerContainer"
-    xmlns:converters="clr-namespace:Panacea.Modules.MediaPlayerContainer.Converters"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:multilinguality="clr-namespace:Panacea.Multilinguality;assembly=Panacea.Multilinguality"
     xmlns:pcontrols="clr-namespace:Panacea.Controls;assembly=Panacea.Controls"
@@ -22,14 +22,14 @@
             </ResourceDictionary.MergedDictionaries>
             <converters:PercentageConverter x:Key="PercentageConverter" />
             <converters:SecondsToStringConverter x:Key="SecondsToStringConverter" />
-            <Style  TargetType="Button" BasedOn="{StaticResource SimpleButton}">
+            <Style BasedOn="{StaticResource SimpleButton}" TargetType="Button">
                 <Style.Setters>
                     <Setter Property="Padding" Value="0" />
                     <Setter Property="Foreground" Value="White" />
 
                 </Style.Setters>
             </Style>
-           
+
             <Style x:Key="PlayerToggleButton" TargetType="ToggleButton">
                 <Style.Setters>
                     <Setter Property="Margin" Value="0" />
@@ -43,16 +43,16 @@
                             <ControlTemplate TargetType="{x:Type ToggleButton}">
 
                                 <Border
-                                Name="ButtonBackground"
-                                VerticalAlignment="{TemplateBinding VerticalAlignment}"
-                                Background="{TemplateBinding Background}">
+                                    Name="ButtonBackground"
+                                    VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                                    Background="{TemplateBinding Background}">
                                     <ContentPresenter
-                                    x:Name="GelButtonContent"
-                                    Margin="{TemplateBinding Padding}"
-                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                    Content="{TemplateBinding Content}"
-                                    TextBlock.Foreground="{TemplateBinding Foreground}" />
+                                        x:Name="GelButtonContent"
+                                        Margin="{TemplateBinding Padding}"
+                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                        Content="{TemplateBinding Content}"
+                                        TextBlock.Foreground="{TemplateBinding Foreground}" />
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
@@ -75,192 +75,185 @@
     </UserControl.Resources>
     <Grid Background="Black">
         <Grid Name="LoadingGrid">
-            <TextBlock Foreground="White" Text="Select media to play"
-                       FontSize="26"
-                       VerticalAlignment="Center"
-                       HorizontalAlignment="Center"/>
+            <TextBlock
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontSize="26"
+                Foreground="White"
+                Text="Select media to play" />
         </Grid>
         <Grid Visibility="{Binding ContentGridVisibility}">
-        <Grid.RowDefinitions>
-            <RowDefinition  />
-            <RowDefinition Height="auto" />
-        </Grid.RowDefinitions>
-        <Grid>
-            <Image Name="SelectedImage" />
-                <Border Name="VideoContainer" >
-                    <ContentPresenter Content="{Binding CurrentVideoControl}"/>
-                </Border>
-        </Grid>
-
-        <Grid
-            Name="Controls"
-            Grid.Row="1"
-            Margin="5">
             <Grid.RowDefinitions>
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
                 <RowDefinition />
+                <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
-            <TextBlock
-                FontSize="{DynamicResource FontSize-Small}"
-                Foreground="#77ffffff"
-                Text="{multilinguality:Translate 'Now Playing',
-                                                 'core'}" />
-            <TextBlock
-                Text="{Binding NowPlayingText}"
-                Grid.Row="1"
-                MaxHeight="300"
-                FontSize="{DynamicResource FontSize-Normal}"
-                Foreground="White"
-                TextWrapping="Wrap" />
-            <Grid
-                Name="sliderHolder"
-                Grid.Row="2"
-                Margin="0,2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto" />
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock
-                    Text="{Binding CurrentTimeText}"
-                    Margin="0,0,5,0"
-                    VerticalAlignment="Center"
-                    FontSize="{DynamicResource FontSize-Small}"
-                    Foreground="White"
-                    />
-                <Slider
-                    
-                    Grid.Column="1"
-                    Margin="0,5"
-                    VerticalAlignment="Center"
-                    pcontrols:Material.Label="{Binding RelativeSource={RelativeSource Self}, Path=Value, Converter={StaticResource SecondsToStringConverter}}"
-                    FontSize="20"
-                    Foreground="{DynamicResource ColorError}"
-                    Maximum="100"
-                    Minimum="0"
-                    Value="{Binding SeekbarValue}" />
-                <TextBlock
-                    Text="{Binding TotalTimeText}"
-                    Grid.Column="2"
-                    Margin="5,0,0,0"
-                    VerticalAlignment="Center"
-                    FontSize="{DynamicResource FontSize-Small}"
-                    Foreground="White" />
+            <Grid>
+                <Image Name="SelectedImage" />
+                <Border Name="VideoContainer">
+                    <ContentPresenter Content="{Binding CurrentVideoControl}" />
+                </Border>
             </Grid>
 
-
-
             <Grid
-                Grid.Row="3"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Center">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-
-                <Button
-                    Grid.Column="0"
-                    Visibility="{Binding PauseButtonVisibility}"
-                    Command="{Binding PauseCommand}">
-                    <pcontrols:MaterialIcon Name="PauseButtonIcon" Icon="{Binding PauseButtonIcon}" />
-                </Button>
-                <Button
-                    Name="StopButton"
-                    Grid.Column="1"
-                    Command="{Binding StopCommand}">
-                    <pcontrols:MaterialIcon Name="StopButtonIcon" Icon="stop" />
-                </Button>
-                <Button
-                    Name="PreviousButton"
-                    Grid.Column="2"
-                    Command="{Binding PreviousCommand}">
-                    <pcontrols:MaterialIcon Name="PreviousButtonIcon" Icon="navigate_before" />
-                </Button>
-
-                <Button
-                    Name="NextButton"
-                    Grid.Column="3"
-                    Command="{Binding NextCommand}">
-
-                    <pcontrols:MaterialIcon Name="NextButtonIcon" Icon="navigate_next" />
-
-                </Button>
-                <pcontrols:MaterialIcon
-                    Grid.Column="4"
-                    Margin="5"
+                Name="Controls"
+                Grid.Row="1"
+                Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <TextBlock
+                    FontSize="{DynamicResource FontSize-Small}"
+                    Foreground="#77ffffff"
+                    Text="{multilinguality:Translate 'Now Playing',
+                                                     'core'}" />
+                <TextBlock
+                    Grid.Row="1"
+                    MaxHeight="300"
+                    FontSize="{DynamicResource FontSize-Normal}"
                     Foreground="White"
-                    Icon="volume_up" />
-                <Slider
-                    Name="volSlider"
-                    Grid.Column="5"
-                    Grid.ColumnSpan="3"
-                    MinWidth="80"
-                    Margin="-5,8,8,8"
-                    VerticalAlignment="Center"
-                    pcontrols:Material.Label="{Binding RelativeSource={RelativeSource Self}, Path=Value, Converter={StaticResource PercentageConverter}}"
-                    Foreground="#289ae9"
-                    LargeChange="10"
-                    Maximum="100"
-                    Minimum="0"
-                    SmallChange="1"
-                    Value="{Binding ElementName=Main, Path=AudioManager.SpeakersVolumePercentage, Mode=TwoWay}" />
+                    Text="{Binding NowPlayingText}"
+                    TextWrapping="Wrap" />
+                <Grid
+                    Name="sliderHolder"
+                    Grid.Row="2"
+                    Margin="0,2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        Margin="0,0,5,0"
+                        VerticalAlignment="Center"
+                        FontSize="{DynamicResource FontSize-Small}"
+                        Foreground="White"
+                        Text="{Binding CurrentTimeText}" />
+                    <Slider
+                        Grid.Column="1"
+                        Margin="0,5"
+                        VerticalAlignment="Center"
+                        pcontrols:Material.Label="{Binding RelativeSource={RelativeSource Self}, Path=Value, Converter={StaticResource SecondsToStringConverter}}"
+                        FontSize="20"
+                        Foreground="{DynamicResource ColorError}"
+                        Maximum="100"
+                        Minimum="0"
+                        Value="{Binding SeekbarValue}" />
+                    <TextBlock
+                        Grid.Column="2"
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Center"
+                        FontSize="{DynamicResource FontSize-Small}"
+                        Foreground="White"
+                        Text="{Binding TotalTimeText}" />
+                </Grid>
 
 
 
-                <ToggleButton
-                    Name="ClosedCaptionsButton"
-                    Grid.Column="8"
-                    IsEnabled="False"
-                    Style="{StaticResource PlayerToggleButton}">
+                <Grid
+                    Grid.Row="3"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <Button
+                        Grid.Column="0"
+                        Command="{Binding PauseCommand}"
+                        Visibility="{Binding PauseButtonVisibility}">
+                        <pcontrols:MaterialIcon Name="PauseButtonIcon" Icon="{Binding PauseButtonIcon}" />
+                    </Button>
+                    <Button
+                        Name="StopButton"
+                        Grid.Column="1"
+                        Command="{Binding StopCommand}">
+                        <pcontrols:MaterialIcon Name="StopButtonIcon" Icon="stop" />
+                    </Button>
+                    <Button
+                        Name="PreviousButton"
+                        Grid.Column="2"
+                        Command="{Binding PreviousCommand}">
+                        <pcontrols:MaterialIcon Name="PreviousButtonIcon" Icon="navigate_before" />
+                    </Button>
+
+                    <Button
+                        Name="NextButton"
+                        Grid.Column="3"
+                        Command="{Binding NextCommand}">
+
+                        <pcontrols:MaterialIcon Name="NextButtonIcon" Icon="navigate_next" />
+
+                    </Button>
                     <pcontrols:MaterialIcon
-                        Name="ClosedCaptionsbuttonIcon"
-                        Margin="0"
-                        Icon="closed_caption" />
-                </ToggleButton>
-
-                <Button
-                    Name="PipButton"
-                    Grid.Column="9">
-                    <pcontrols:MaterialIcon
-                        Name="PipButtonIcon"
+                        Grid.Column="4"
                         Margin="5"
-                        Icon="picture_in_picture_alt" />
-                </Button>
+                        Foreground="White"
+                        Icon="volume_up" />
+                    <Slider
+                        Name="volSlider"
+                        Grid.Column="5"
+                        Grid.ColumnSpan="3"
+                        MinWidth="80"
+                        Margin="-5,8,8,8"
+                        VerticalAlignment="Center"
+                        pcontrols:Material.Label="{Binding RelativeSource={RelativeSource Self}, Path=Value, Converter={StaticResource PercentageConverter}}"
+                        Foreground="#289ae9"
+                        LargeChange="10"
+                        Maximum="100"
+                        Minimum="0"
+                        SmallChange="1"
+                        Value="{Binding ElementName=Main, Path=AudioManager.SpeakersVolumePercentage, Mode=TwoWay}" />
 
 
-                <Button
-                    Name="SwitchPlayerButton"
-                    Grid.Column="10">
-                    <pcontrols:MaterialIcon
-                        Name="ScreenCastButtonIcon"
-                        Margin="6"
-                        Icon="open_in_browser" />
-                </Button>
 
-                <Button
-                    Name="FullscreenButton"
-                    Grid.Column="11"
-                    >
-                    <pcontrols:MaterialIcon
-                        Name="FullscreenButtonIcon"
-                        Margin="2"
-                        Icon="fullscreen" />
-                </Button>
+                    <ToggleButton
+                        Name="ClosedCaptionsButton"
+                        Grid.Column="8"
+                        IsEnabled="False"
+                        Style="{StaticResource PlayerToggleButton}">
+                        <pcontrols:MaterialIcon
+                            Name="ClosedCaptionsbuttonIcon"
+                            Margin="0"
+                            Icon="closed_caption" />
+                    </ToggleButton>
+
+                    <Button Name="PipButton" Grid.Column="9">
+                        <pcontrols:MaterialIcon
+                            Name="PipButtonIcon"
+                            Margin="5"
+                            Icon="picture_in_picture_alt" />
+                    </Button>
+
+
+                    <Button Name="SwitchPlayerButton" Grid.Column="10">
+                        <pcontrols:MaterialIcon
+                            Name="ScreenCastButtonIcon"
+                            Margin="6"
+                            Icon="open_in_browser" />
+                    </Button>
+
+                    <Button Name="FullscreenButton" Grid.Column="11">
+                        <pcontrols:MaterialIcon
+                            Name="FullscreenButtonIcon"
+                            Margin="2"
+                            Icon="fullscreen" />
+                    </Button>
+                </Grid>
             </Grid>
         </Grid>
-    </Grid>
     </Grid>
 </UserControl>

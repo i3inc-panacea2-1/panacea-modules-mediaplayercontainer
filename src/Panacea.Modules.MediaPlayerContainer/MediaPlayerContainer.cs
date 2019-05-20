@@ -16,7 +16,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         private readonly PanaceaServices _core;
         private readonly IPluginLoader _loader;
         private MediaPlayerContainerViewModel _control;
-
+        private MediaResponse _currentResponse;
         public event EventHandler<Exception> Error;
         public event EventHandler<bool> IsSeekableChanged;
         public event EventHandler<float> PositionChanged;
@@ -125,16 +125,19 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void Player_Error(object sender, Exception e)
         {
+            _currentResponse?.RaiseError();
             Error?.Invoke(this, e);
         }
 
         private void Player_Ended(object sender, EventArgs e)
         {
+            _currentResponse?.RaiseEnded();
             Ended?.Invoke(this, e);
         }
 
         private void Player_Stopped(object sender, EventArgs e)
         {
+            _currentResponse?.RaiseStopped();
             Stopped?.Invoke(this, e);
         }
 
@@ -150,6 +153,7 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void Player_Playing(object sender, EventArgs e)
         {
+            _currentResponse?.RaisePlaying();
             Playing?.Invoke(this, e);
         }
 
@@ -196,18 +200,19 @@ namespace Panacea.Modules.MediaPlayerContainer
             CurrentMediaPlayer?.Play();
         }
 
-        public void Play(MediaRequest request)
+        public IMediaResponse Play(MediaRequest request)
         {
             var players = _loader.GetPlugins<IMediaPlayerPlugin>()
-                .Where(p => p.CanPlayChannel(request.Media.GetType()))
+                .Where(p => p.CanPlayChannel(request.Media))
                 .ToList();
 
-            if (CurrentMediaPlayer != null && !players.Contains(CurrentMediaPlayer))
+            if (CurrentMediaPlayer != null && players.Contains(CurrentMediaPlayer))
             {
                 DetachFromPlayer(CurrentMediaPlayer);
                 CurrentMediaPlayer.Stop();
             }
             CurrentRequest = request;
+            _currentResponse = new MediaResponse(request);
             AvailablePlayers = players;
             if (players.Count == 1)
             {
@@ -218,11 +223,13 @@ namespace Panacea.Modules.MediaPlayerContainer
             {
                 // show popup and then open
             }
+            return _currentResponse;
         }
 
         private void PlayInternal()
         {
             CreateMediaControl();
+
             AttachToPlayer(CurrentMediaPlayer);
             Opening?.Invoke(this, EventArgs.Empty);
             switch (CurrentRequest.MediaPlayerPosition)

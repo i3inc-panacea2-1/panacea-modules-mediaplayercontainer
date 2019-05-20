@@ -178,13 +178,15 @@ namespace Panacea.Modules.MediaPlayerContainer
             }
         }
 
-        UIElement _currentVideoControl;
-        public UIElement CurrentVideoControl
+        FrameworkElement _currentVideoControl;
+        public FrameworkElement CurrentVideoControl
         {
             get => _currentVideoControl;
             set
             {
-                _currentVideoControl = value;
+                var grid = new Grid();
+                grid.Children.Add(value);
+                _currentVideoControl = grid;
                 OnPropertyChanged();
             }
         }
