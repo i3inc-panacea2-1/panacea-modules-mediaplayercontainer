@@ -229,23 +229,31 @@ namespace Panacea.Modules.MediaPlayerContainer
         private void PlayInternal()
         {
             CreateMediaControl();
-
-            AttachToPlayer(CurrentMediaPlayer);
-            Opening?.Invoke(this, EventArgs.Empty);
-            switch (CurrentRequest.MediaPlayerPosition)
+            try
             {
-                case MediaPlayerPosition.Standalone:
-                    if (_core.TryGetUiManager(out IUiManager ui))
-                    {
-                        ui.Navigate(_control, false);
-                    }
-                    break;
-                case MediaPlayerPosition.Embedded:
-                    CurrentRequest.MediaPlayerHost.Content = _control;
-                    break;
-            }
+                AttachToPlayer(CurrentMediaPlayer);
+                Opening?.Invoke(this, EventArgs.Empty);
+                switch (CurrentRequest.MediaPlayerPosition)
+                {
+                    case MediaPlayerPosition.Standalone:
+                        if (_core.TryGetUiManager(out IUiManager ui))
+                        {
+                            ui.Navigate(_control, false);
+                        }
+                        break;
+                    case MediaPlayerPosition.Embedded:
+                        CurrentRequest.MediaPlayerHost.Content = _control;
+                        break;
+                }
 
-            CurrentMediaPlayer.Play(CurrentRequest.Media);
+                CurrentMediaPlayer.Play(CurrentRequest.Media);
+            }
+            catch (Exception ex)
+            {
+                _currentResponse?.RaiseError();
+                Error?.Invoke(this, ex);
+                DetachFromPlayer(CurrentMediaPlayer);
+            }
         }
 
         public void Stop()
