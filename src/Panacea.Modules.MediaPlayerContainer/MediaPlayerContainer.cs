@@ -233,6 +233,9 @@ namespace Panacea.Modules.MediaPlayerContainer
             {
                 AttachToPlayer(CurrentMediaPlayer);
                 Opening?.Invoke(this, EventArgs.Empty);
+                
+
+                CurrentMediaPlayer.Play(CurrentRequest.Media);
                 switch (CurrentRequest.MediaPlayerPosition)
                 {
                     case MediaPlayerPosition.Standalone:
@@ -245,8 +248,6 @@ namespace Panacea.Modules.MediaPlayerContainer
                         CurrentRequest.MediaPlayerHost.Content = _control;
                         break;
                 }
-
-                CurrentMediaPlayer.Play(CurrentRequest.Media);
             }
             catch (Exception ex)
             {
@@ -254,6 +255,7 @@ namespace Panacea.Modules.MediaPlayerContainer
                 Error?.Invoke(this, ex);
                 DetachFromPlayer(CurrentMediaPlayer);
             }
+            
         }
 
         public void Stop()
