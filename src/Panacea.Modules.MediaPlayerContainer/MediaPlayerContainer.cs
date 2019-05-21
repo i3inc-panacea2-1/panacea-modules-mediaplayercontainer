@@ -2,7 +2,7 @@
 using Panacea.Modularity;
 using Panacea.Modularity.Media;
 using Panacea.Modularity.MediaPlayerContainer;
-using Panacea.Modularity.UiManager.Extensions;
+using Panacea.Modularity.UiManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -235,7 +235,10 @@ namespace Panacea.Modules.MediaPlayerContainer
             switch (CurrentRequest.MediaPlayerPosition)
             {
                 case MediaPlayerPosition.Standalone:
-                    _core.GetUiManager().Navigate(_control, false);
+                    if (_core.TryGetUiManager(out IUiManager ui))
+                    {
+                        ui.Navigate(_control, false);
+                    }
                     break;
                 case MediaPlayerPosition.Embedded:
                     CurrentRequest.MediaPlayerHost.Content = _control;
