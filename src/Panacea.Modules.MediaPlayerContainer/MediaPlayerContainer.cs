@@ -125,18 +125,21 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void Player_Error(object sender, Exception e)
         {
+            Refrain();
             _currentResponse?.RaiseError();
             Error?.Invoke(this, e);
         }
 
         private void Player_Ended(object sender, EventArgs e)
         {
+            Refrain();
             _currentResponse?.RaiseEnded();
             Ended?.Invoke(this, e);
         }
 
         private void Player_Stopped(object sender, EventArgs e)
         {
+            Refrain();
             _currentResponse?.RaiseStopped();
             Stopped?.Invoke(this, e);
         }
@@ -214,9 +217,12 @@ namespace Panacea.Modules.MediaPlayerContainer
             CurrentRequest = request;
             _currentResponse = new MediaResponse(request);
             AvailablePlayers = players;
+            
             if (players.Count == 1)
             {
+               
                 CurrentMediaPlayer = players.First();
+                _control.NowPlayingText = request.Media.Name;
                 PlayInternal();
             }
             else
@@ -233,9 +239,10 @@ namespace Panacea.Modules.MediaPlayerContainer
             {
                 AttachToPlayer(CurrentMediaPlayer);
                 Opening?.Invoke(this, EventArgs.Empty);
-                
+
 
                 CurrentMediaPlayer.Play(CurrentRequest.Media);
+                _control.VideoVisible = true;
                 switch (CurrentRequest.MediaPlayerPosition)
                 {
                     case MediaPlayerPosition.Standalone:
@@ -247,6 +254,13 @@ namespace Panacea.Modules.MediaPlayerContainer
                     case MediaPlayerPosition.Embedded:
                         CurrentRequest.MediaPlayerHost.Content = _control;
                         break;
+                    case MediaPlayerPosition.Notification:
+                        if (_core.TryGetUiManager(out IUiManager uii))
+                        {
+                            _control.VideoVisible = false;
+                            uii.Notify(_control);
+                        }
+                        break;
                 }
             }
             catch (Exception ex)
@@ -255,7 +269,15 @@ namespace Panacea.Modules.MediaPlayerContainer
                 Error?.Invoke(this, ex);
                 DetachFromPlayer(CurrentMediaPlayer);
             }
-            
+
+        }
+
+        void Refrain()
+        {
+            if (_core.TryGetUiManager(out IUiManager ui))
+            {
+                ui.Refrain(_control);
+            }
         }
 
         public void Stop()

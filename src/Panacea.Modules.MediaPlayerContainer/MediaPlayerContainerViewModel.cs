@@ -1,11 +1,8 @@
 ﻿using Panacea.Controls;
-using Panacea.Modularity.MediaPlayerContainer;
 using Panacea.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -57,68 +54,79 @@ namespace Panacea.Modules.MediaPlayerContainer
             return t;
         }
 
-        Visibility _previousButtonVisibility;
-        public Visibility PreviousButtonVisibility
+        bool _isPlaying;
+        public bool IsPlaying
         {
-            get => _previousButtonVisibility;
+            get => _isPlaying;
             set
             {
-                _previousButtonVisibility = value;
+                _isPlaying = value;
                 OnPropertyChanged();
             }
         }
 
-        Visibility _nextButtonVisibility;
-        public Visibility NextButtonVisibility
+        bool _isVideoVisible;
+        public bool VideoVisible
         {
-            get => _nextButtonVisibility;
+            get => _isVideoVisible;
             set
             {
-                _nextButtonVisibility = value;
+                _isVideoVisible = value;
                 OnPropertyChanged();
             }
         }
 
-        Visibility _pauseButtonVisibility;
-        public Visibility PauseButtonVisibility
+        bool _previousButtonVisible;
+        public bool PreviousButtonVisible
         {
-            get => _pauseButtonVisibility;
+            get => _previousButtonVisible;
             set
             {
-                _pauseButtonVisibility = value;
+                _previousButtonVisible = value;
                 OnPropertyChanged();
             }
         }
 
-        Visibility _stopButtonVisibility;
-        public Visibility StopButtonVisibility
+        bool _nextButtonVisible;
+        public bool NextButtonVisible
         {
-            get => _stopButtonVisibility;
+            get => _nextButtonVisible;
             set
             {
-                _stopButtonVisibility = value;
+                _nextButtonVisible = value;
                 OnPropertyChanged();
             }
         }
 
-        Visibility _switchPlayerButtonVisibility;
-        public Visibility SwitchPlayerButtonVisibility
+        bool _pauseButtonVisible;
+        public bool PauseButtonVisible
         {
-            get => _switchPlayerButtonVisibility;
+            get => _pauseButtonVisible;
             set
             {
-                _switchPlayerButtonVisibility = value;
+                _pauseButtonVisible = value;
                 OnPropertyChanged();
             }
         }
 
-        Visibility _contentGridVisibility = Visibility.Collapsed;
-        public Visibility ContentGridVisibility
+        bool _stopButtonVisible;
+        public bool StopButtonVisible
         {
-            get => _contentGridVisibility;
+            get => _stopButtonVisible;
             set
             {
-                _contentGridVisibility = value;
+                _stopButtonVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
+        bool _switchPlayerButtonVisible;
+        public bool SwitchPlayerButtonVisible
+        {
+            get => _switchPlayerButtonVisible;
+            set
+            {
+                _switchPlayerButtonVisible = value;
                 OnPropertyChanged();
             }
         }
@@ -198,12 +206,12 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void _container_HasPreviousChanged(object sender, bool e)
         {
-            PreviousButtonVisibility = e ? Visibility.Visible : Visibility.Collapsed;
+            PreviousButtonVisible = e;
         }
 
         private void _container_HasNextChanged(object sender, bool e)
         {
-            NextButtonVisibility = e ? Visibility.Visible : Visibility.Collapsed;
+            NextButtonVisible = e;
         }
 
         private void _container_Click(object sender, EventArgs e)
@@ -216,7 +224,7 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void _container_Ended(object sender, EventArgs e)
         {
-            ContentGridVisibility = Visibility.Collapsed;
+            IsPlaying = false;
             _fullscreenWindow?.Close();
         }
 
@@ -235,8 +243,8 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void _container_Stopped(object sender, EventArgs e)
         {
-            PauseButtonVisibility = StopButtonVisibility = Visibility.Collapsed;
-            ContentGridVisibility = Visibility.Collapsed;
+            IsPlaying = false;
+            PauseButtonVisible = StopButtonVisible = false;
             _fullscreenWindow?.Close();
         }
 
@@ -247,8 +255,8 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void _container_Opening(object sender, EventArgs e)
         {
-            ContentGridVisibility = Visibility.Visible;
-            SwitchPlayerButtonVisibility = _container.AvailablePlayers.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+            IsPlaying = true;
+            SwitchPlayerButtonVisible = _container.AvailablePlayers.Count > 1;
         }
 
         private void _container_Playing(object sender, EventArgs e)
@@ -257,12 +265,12 @@ namespace Panacea.Modules.MediaPlayerContainer
             RemoveChild(_container.CurrentMediaPlayer.VideoControl);
             CurrentVideoControl = _container.CurrentMediaPlayer.VideoControl;
             PauseButtonIcon = "pause";
-            PauseButtonVisibility = StopButtonVisibility = Visibility.Visible;
+            PauseButtonVisible = StopButtonVisible = true;
         }
 
         private void _container_Error(object sender, Exception e)
         {
-
+            IsPlaying = false;
         }
 
         public static void RemoveChild(FrameworkElement element)
