@@ -232,5 +232,10 @@ namespace TestApp
         {
             throw new NotImplementedException();
         }
+
+        public Task<TResult> ShowPopup<TResult>(PopupViewModelBase<TResult> element, string title = null, PopupType popupType = PopupType.None, bool closable = true, bool trasnparent = true)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

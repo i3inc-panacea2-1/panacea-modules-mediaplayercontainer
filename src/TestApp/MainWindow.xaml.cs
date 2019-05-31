@@ -1,6 +1,5 @@
 ﻿using Panacea.Core;
 using System.Windows;
-using Panacea.Modularity.MediaPlayerContainer.Extensions;
 using Panacea.Modularity.MediaPlayerContainer;
 using System.Collections.Generic;
 using Panacea.Modularity;
@@ -21,7 +20,7 @@ namespace TestApp
         {
             InitializeComponent();
             _loader = new PluginLoader();
-            _core = new PanaceaServices(null, null, _loader);
+            _core = new PanaceaServices(null, null, _loader, null, null);
             _loader.LoadPlugin(new MediaPlayerContainer(_core));
             _loader.LoadPlugin(new SampleMediaPlayer());
             _loader.LoadPlugin(new UiManagerPlugin(this.Container));
