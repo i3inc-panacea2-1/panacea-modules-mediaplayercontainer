@@ -75,7 +75,12 @@ namespace Panacea.Modules.MediaPlayerContainer
             player.HasSubtitlesChanged += Player_HasSubtitlesChanged;
             player.DurationChanged += Player_DurationChanged;
             player.Click += Player_Click;
+            player.HasNextChanged += Player_HasNextChanged;
+            player.HasPreviousChanged += Player_HasPreviousChanged;
         }
+
+       
+
         private void DetachFromPlayer(IMediaPlayerPlugin player)
         {
             player.Opening -= Player_Opening;
@@ -91,6 +96,18 @@ namespace Panacea.Modules.MediaPlayerContainer
             player.HasSubtitlesChanged -= Player_HasSubtitlesChanged;
             player.DurationChanged -= Player_DurationChanged;
             player.Click -= Player_Click;
+            player.HasNextChanged -= Player_HasNextChanged;
+            player.HasPreviousChanged -= Player_HasPreviousChanged;
+        }
+
+        private void Player_HasPreviousChanged(object sender, bool e)
+        {
+            HasPreviousChanged?.Invoke(this, e);
+        }
+
+        private void Player_HasNextChanged(object sender, bool e)
+        {
+            HasNextChanged?.Invoke(this, e);
         }
 
         private void Player_Click(object sender, EventArgs e)
@@ -205,6 +222,7 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         public IMediaResponse Play(MediaRequest request)
         {
+            CreateMediaControl();
             var players = _loader.GetPlugins<IMediaPlayerPlugin>()
                 .Where(p => p.CanPlayChannel(request.Media))
                 .ToList();
@@ -234,7 +252,7 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void PlayInternal()
         {
-            CreateMediaControl();
+            
             try
             {
                 AttachToPlayer(CurrentMediaPlayer);
