@@ -10,8 +10,8 @@
     xmlns:pcontrols="clr-namespace:Panacea.Controls;assembly=Panacea.Controls"
     d:DesignHeight="450"
     d:DesignWidth="800"
-    mc:Ignorable="d"
-    pcontrols:Material.RelativeFontSizeRatio="1.0">
+    pcontrols:Material.RelativeFontSizeRatio="1.0"
+    mc:Ignorable="d">
     <UserControl.DataContext>
         <x:Type Type="local:MediaPlayerContainerViewModel" />
     </UserControl.DataContext>
@@ -98,9 +98,9 @@
             </Grid>
 
             <Grid
-                Name="Controls"
                 Grid.Row="1"
-                Margin="5">
+                Margin="5"
+                Visibility="{Binding AreControlsVisible, Converter={StaticResource BoolToVis}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="auto" />
@@ -122,7 +122,8 @@
                 <Grid
                     Name="sliderHolder"
                     Grid.Row="2"
-                    Margin="0,2">
+                    Margin="0,2"
+                    Visibility="{Binding IsSeekable, Converter={StaticResource BoolToVis}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto" />
                         <ColumnDefinition />
@@ -139,7 +140,6 @@
                         Margin="0,5"
                         VerticalAlignment="Center"
                         pcontrols:Material.Label="{Binding RelativeSource={RelativeSource Self}, Path=Value, Converter={StaticResource SecondsToStringConverter}}"
-                        
                         Foreground="{DynamicResource ColorError}"
                         Maximum="100"
                         Minimum="0"
@@ -148,7 +148,7 @@
                         Grid.Column="2"
                         Margin="5,0,0,0"
                         VerticalAlignment="Center"
-                       pcontrols:Material.RelativeFontSizeRatio=".9"
+                        pcontrols:Material.RelativeFontSizeRatio=".9"
                         Foreground="White"
                         Text="{Binding TotalTimeText}" />
                 </Grid>
@@ -228,7 +228,8 @@
                     <ToggleButton
                         Name="ClosedCaptionsButton"
                         Grid.Column="8"
-                        IsEnabled="False"
+                        IsChecked="{Binding ClosedCaptionsEnabled}"
+                        IsEnabled="{Binding HasClosedCaptions}"
                         Style="{StaticResource PlayerToggleButton}">
                         <pcontrols:MaterialIcon
                             Name="ClosedCaptionsbuttonIcon"
@@ -251,7 +252,10 @@
                             Icon="open_in_browser" />
                     </Button>
 
-                    <Button Name="FullscreenButton" Grid.Column="11">
+                    <Button
+                        Name="FullscreenButton"
+                        Grid.Column="11"
+                        Command="{Binding FullscreenCommand}">
                         <pcontrols:MaterialIcon
                             Name="FullscreenButtonIcon"
                             Margin="2"

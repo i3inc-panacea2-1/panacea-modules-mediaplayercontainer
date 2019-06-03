@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Panacea.Modules.MediaPlayerContainer
 {
@@ -32,7 +33,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         public event EventHandler Click;
         public event EventHandler<bool> HasNextChanged;
         public event EventHandler<bool> HasPreviousChanged;
-
+        Window _fullscreenWindow;
         public List<IMediaPlayerPlugin> AvailablePlayers { get; private set; }
         public MediaPlayerContainer(PanaceaServices core)
         {
@@ -79,7 +80,7 @@ namespace Panacea.Modules.MediaPlayerContainer
             player.HasPreviousChanged += Player_HasPreviousChanged;
         }
 
-       
+
 
         private void DetachFromPlayer(IMediaPlayerPlugin player)
         {
@@ -113,6 +114,10 @@ namespace Panacea.Modules.MediaPlayerContainer
         private void Player_Click(object sender, EventArgs e)
         {
             Click?.Invoke(this, EventArgs.Empty);
+            _fullscreenWindow?.Close();
+            EmbedPlayer();
+            _control.AreControlsVisible = CurrentRequest.ShowControls;
+            _control.VideoVisible = CurrentRequest.ShowVideo;
         }
 
         private void Player_DurationChanged(object sender, TimeSpan e)
@@ -235,12 +240,18 @@ namespace Panacea.Modules.MediaPlayerContainer
             CurrentRequest = request;
             _currentResponse = new MediaResponse(request);
             AvailablePlayers = players;
-            
+
+
             if (players.Count == 1)
             {
-               
                 CurrentMediaPlayer = players.First();
+                HasSubtitlesChanged?.Invoke(this, false);
+                _control.AreControlsVisible = request.ShowControls;
+                _control.VideoVisible = request.ShowVideo;
                 _control.NowPlayingText = request.Media.Name;
+                IsSeekableChanged?.Invoke(this, false);
+                PositionChanged?.Invoke(this, 0f);
+                DurationChanged?.Invoke(this, TimeSpan.FromSeconds(0));
                 PlayInternal();
             }
             else
@@ -252,34 +263,12 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void PlayInternal()
         {
-            
+
             try
             {
                 AttachToPlayer(CurrentMediaPlayer);
-                Opening?.Invoke(this, EventArgs.Empty);
-
-
                 CurrentMediaPlayer.Play(CurrentRequest.Media);
-                _control.VideoVisible = true;
-                switch (CurrentRequest.MediaPlayerPosition)
-                {
-                    case MediaPlayerPosition.Standalone:
-                        if (_core.TryGetUiManager(out IUiManager ui))
-                        {
-                            ui.Navigate(_control, false);
-                        }
-                        break;
-                    case MediaPlayerPosition.Embedded:
-                        CurrentRequest.MediaPlayerHost.Content = _control;
-                        break;
-                    case MediaPlayerPosition.Notification:
-                        if (_core.TryGetUiManager(out IUiManager uii))
-                        {
-                            _control.VideoVisible = false;
-                            uii.Notify(_control);
-                        }
-                        break;
-                }
+                EmbedPlayer();
             }
             catch (Exception ex)
             {
@@ -288,6 +277,53 @@ namespace Panacea.Modules.MediaPlayerContainer
                 DetachFromPlayer(CurrentMediaPlayer);
             }
 
+        }
+
+        public void GoFullscreen()
+        {
+            _control.View.RemoveChild();
+            _fullscreenWindow = new Window()
+            {
+                WindowState = WindowState.Maximized,
+                WindowStyle = WindowStyle.None,
+                ResizeMode = ResizeMode.NoResize,
+                ShowInTaskbar = false,
+                Content = _control.View,
+                Topmost = true
+            };
+            _control.AreControlsVisible = false;
+            _fullscreenWindow.Show();
+         }
+
+        void EmbedPlayer()
+        {
+            _control.View.RemoveChild();
+            switch (CurrentRequest.MediaPlayerPosition)
+            {
+                case MediaPlayerPosition.Standalone:
+                    if (_core.TryGetUiManager(out IUiManager ui))
+                    {
+                        ui.Navigate(_control, false);
+                    }
+                    break;
+                case MediaPlayerPosition.Embedded:
+                    CurrentRequest.MediaPlayerHost.Unloaded += MediaPlayerHost_Unloaded;
+                    CurrentRequest.MediaPlayerHost.Content = _control.View;
+                    break;
+                case MediaPlayerPosition.Notification:
+                    if (_core.TryGetUiManager(out IUiManager uii))
+                    {
+                        _control.VideoVisible = false;
+                        uii.Notify(_control);
+                    }
+                    break;
+            }
+        }
+
+        private void MediaPlayerHost_Unloaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            CurrentRequest.MediaPlayerHost.Unloaded -= MediaPlayerHost_Unloaded;
+            Stop();
         }
 
         void Refrain()

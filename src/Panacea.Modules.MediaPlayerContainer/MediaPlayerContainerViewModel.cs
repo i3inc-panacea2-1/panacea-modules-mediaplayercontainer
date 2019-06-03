@@ -3,6 +3,8 @@ using Panacea.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -32,7 +34,8 @@ namespace Panacea.Modules.MediaPlayerContainer
             _container.HasNextChanged += _container_HasNextChanged;
             _container.HasPreviousChanged += _container_HasPreviousChanged;
             _container.NowPlaying += _container_NowPlaying;
-
+            _container.HasSubtitlesChanged += _container_HasSubtitlesChanged;
+            _container.IsSeekableChanged += _container_IsSeekableChanged;
             PauseCommand = new RelayCommand((args) =>
             {
                 if (_container.IsPlaying)
@@ -43,15 +46,65 @@ namespace Panacea.Modules.MediaPlayerContainer
             StopCommand = new RelayCommand(
                 (args) => _container.Stop());
 
-            PreviousCommand = new RelayCommand((args) => _container.Previous(), (args)=>_container.CurrentMediaPlayer?.HasPrevious == true);
+            PreviousCommand = new RelayCommand((args) => _container.Previous(), (args) => _container.CurrentMediaPlayer?.HasPrevious == true);
 
             NextCommand = new RelayCommand((args) => _container.Next(), (args) => _container.CurrentMediaPlayer?.HasNext == true);
+
+            FullscreenCommand = new RelayCommand(args =>
+            {
+                container.GoFullscreen();
+            });
+        }
+
+        private void _container_IsSeekableChanged(object sender, bool e)
+        {
+            IsSeekable = e;
+        }
+
+        private void _container_HasSubtitlesChanged(object sender, bool e)
+        {
+            HasClosedCaptions = e;
         }
 
         public override Type GetViewType()
         {
             var t = base.GetViewType();
             return t;
+        }
+
+        bool _closedCaptionsEnabled;
+        public bool ClosedCaptionsEnabled
+        {
+            get => _closedCaptionsEnabled;
+            set
+            {
+                _closedCaptionsEnabled = value;
+                _container.SetSubtitles(value);
+                OnPropertyChanged();
+            }
+        }
+
+
+        bool _isSeekable;
+        public bool IsSeekable
+        {
+            get => _isSeekable;
+            set
+            {
+                _isSeekable = value;
+                OnPropertyChanged();
+            }
+        }
+
+        bool _hasSubtitles;
+        public bool HasClosedCaptions
+        {
+            get => _hasSubtitles;
+            set
+            {
+                _hasSubtitles = value;
+                OnPropertyChanged();
+            }
         }
 
         bool _isPlaying;
@@ -72,6 +125,17 @@ namespace Panacea.Modules.MediaPlayerContainer
             set
             {
                 _isVideoVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
+        bool _areControlsVisible;
+        public bool AreControlsVisible
+        {
+            get => _areControlsVisible;
+            set
+            {
+                _areControlsVisible = value;
                 OnPropertyChanged();
             }
         }
@@ -164,6 +228,9 @@ namespace Panacea.Modules.MediaPlayerContainer
             }
         }
 
+        bool _dragging = false;
+
+        CancellationTokenSource _cts;
         double _seekbarValue;
         public double SeekbarValue
         {
@@ -171,6 +238,17 @@ namespace Panacea.Modules.MediaPlayerContainer
             set
             {
                 _seekbarValue = value;
+                _dragging = true;
+                _cts?.Cancel();
+                var cts = new CancellationTokenSource();
+                _cts = cts;
+                Task.Delay(TimeSpan.FromMilliseconds(500)).ContinueWith(task =>
+                {
+                    if (cts.IsCancellationRequested) return;
+                    _container.Position = (float)(_seekbarValue/100.0);
+                    _dragging = false;
+                });
+
                 OnPropertyChanged();
             }
         }
@@ -231,7 +309,11 @@ namespace Panacea.Modules.MediaPlayerContainer
         private void _container_PositionChanged(object sender, float e)
         {
             CurrentTimeText = TimeSpan.FromMilliseconds(_totalTime.TotalMilliseconds * e).ToString("hh\\:mm\\:ss");
-            SeekbarValue = e * 100;
+            if (!_dragging)
+            {
+                _seekbarValue = e * 100;
+                OnPropertyChanged("SeekbarValue");
+            }
         }
 
         private void _container_DurationChanged(object sender, TimeSpan e)
@@ -262,7 +344,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         private void _container_Playing(object sender, EventArgs e)
         {
             _container_PositionChanged(this, _container.CurrentMediaPlayer.Position);
-            RemoveChild(_container.CurrentMediaPlayer.VideoControl);
+            _container.CurrentMediaPlayer.VideoControl.RemoveChild();
             CurrentVideoControl = _container.CurrentMediaPlayer.VideoControl;
             PauseButtonIcon = "pause";
             PauseButtonVisible = StopButtonVisible = true;
@@ -273,75 +355,12 @@ namespace Panacea.Modules.MediaPlayerContainer
             IsPlaying = false;
         }
 
-        public static void RemoveChild(FrameworkElement element)
-        {
-            var objs = new List<DependencyObject>()
-            {
-                 element.Parent,
-                 VisualTreeHelper.GetParent(element)
-            };
-            foreach (var dobjs in objs.Where(o => o != null))
-            {
-                var panel = dobjs as Panel;
-                if (panel != null)
-                {
-                    panel.Children.Remove(element);
-                    return;
-                }
-
-                var decorator = dobjs as Decorator;
-                if (decorator != null)
-                {
-                    if (decorator.Child == element)
-                    {
-                        decorator.Child = null;
-                    }
-                    return;
-                }
-
-                var contentPresenter = dobjs as ContentPresenter;
-                if (contentPresenter != null)
-                {
-                    if (contentPresenter.Content == element)
-                    {
-                        contentPresenter.Content = null;
-                    }
-                    return;
-                }
-
-                var contentControl = dobjs as ContentControl;
-                if (contentControl != null)
-                {
-                    if (contentControl.Content == element)
-                    {
-                        contentControl.Content = null;
-                    }
-                }
-            }
-        }
-
-
-
-        private void FullscreenButton_Click(object sender, RoutedEventArgs e)
-        {
-            RemoveChild(_container.CurrentMediaPlayer.VideoControl);
-            _fullscreenWindow = new Window()
-            {
-                ShowInTaskbar = false,
-                WindowStyle = WindowStyle.None,
-                ResizeMode = ResizeMode.NoResize,
-                WindowState = WindowState.Maximized,
-                Content = _container.CurrentMediaPlayer.VideoControl
-            };
-            _fullscreenWindow.Closed += W_Closed;
-            _fullscreenWindow.Show();
-        }
 
         private void W_Closed(object sender, EventArgs e)
         {
             _fullscreenWindow.Closed -= W_Closed;
             _fullscreenWindow = null;
-            RemoveChild(_container.CurrentMediaPlayer.VideoControl);
+            _container.CurrentMediaPlayer.VideoControl.RemoveChild();
             CurrentVideoControl = _container.CurrentMediaPlayer.VideoControl;
         }
 
@@ -352,6 +371,8 @@ namespace Panacea.Modules.MediaPlayerContainer
         public RelayCommand StopCommand { get; }
 
         public RelayCommand PauseCommand { get; }
+
+        public RelayCommand FullscreenCommand { get; }
 
 
     }
