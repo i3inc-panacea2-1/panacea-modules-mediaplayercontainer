@@ -237,7 +237,8 @@
                             Icon="closed_caption" />
                     </ToggleButton>
 
-                    <Button Name="PipButton" Grid.Column="9">
+                    <Button Name="PipButton" Grid.Column="9"
+                            Command="{Binding PipCommand}">
                         <pcontrols:MaterialIcon
                             Name="PipButtonIcon"
                             Margin="5"

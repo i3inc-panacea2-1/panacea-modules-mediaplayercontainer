@@ -54,6 +54,13 @@ namespace Panacea.Modules.MediaPlayerContainer
             {
                 container.GoFullscreen();
             });
+
+            PipCommand = new RelayCommand(args =>
+            {
+                container.GoToPip();
+            });
+
+            
         }
 
         private void _container_IsSeekableChanged(object sender, bool e)
@@ -373,6 +380,8 @@ namespace Panacea.Modules.MediaPlayerContainer
         public RelayCommand PauseCommand { get; }
 
         public RelayCommand FullscreenCommand { get; }
+
+        public RelayCommand PipCommand { get; }
 
 
     }

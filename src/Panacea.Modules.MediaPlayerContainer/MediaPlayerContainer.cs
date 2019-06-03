@@ -114,6 +114,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         private void Player_Click(object sender, EventArgs e)
         {
             Click?.Invoke(this, EventArgs.Empty);
+            if (_pip.IsVisible) return;
             _fullscreenWindow?.Close();
             EmbedPlayer();
             _control.AreControlsVisible = CurrentRequest.ShowControls;
@@ -318,6 +319,19 @@ namespace Panacea.Modules.MediaPlayerContainer
                     }
                     break;
             }
+        }
+
+        PipWindow _pip;
+        internal void GoToPip()
+        {
+            _pip = _pip ?? new PipWindow();
+            _control.AreControlsVisible = false;
+            _control.View.RemoveChild();
+            _pip.viewer.Children.Add(_control.View);
+            _pip.Width = 520;
+            _pip.Height = 360;
+            _pip.WindowState = WindowState.Normal;
+            _pip.Show();
         }
 
         private void MediaPlayerHost_Unloaded(object sender, System.Windows.RoutedEventArgs e)

@@ -50,6 +50,9 @@
     <Compile Include="Converters\PercentageConverter.cs" />
     <Compile Include="Converters\SecondsToStringConverter.cs" />
     <Compile Include="FrameworkElementExtensions.cs" />
+    <Compile Include="PipWindow.xaml.cs">
+      <DependentUpon>PipWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MediaPlayerContainer.cs" />
     <Compile Include="MediaPlayerContainerViewModel.cs" />
     <Compile Include="MediaResponse.cs" />
@@ -59,6 +62,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="PipWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MediaPlayerContainerControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
