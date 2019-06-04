@@ -151,6 +151,13 @@ namespace Panacea.Modules.MediaPlayerContainer
             Refrain();
             _currentResponse?.RaiseError();
             Error?.Invoke(this, e);
+            if (_core.TryGetUiManager(out IUiManager ui))
+            {
+                if (ui.CurrentPage == _control)
+                {
+                    ui.GoBack();
+                }
+            }
         }
 
         private void Player_Ended(object sender, EventArgs e)
@@ -158,6 +165,13 @@ namespace Panacea.Modules.MediaPlayerContainer
             Refrain();
             _currentResponse?.RaiseEnded();
             Ended?.Invoke(this, e);
+            if (_core.TryGetUiManager(out IUiManager ui))
+            {
+                if (ui.CurrentPage == _control)
+                {
+                    ui.GoBack();
+                }
+            }
         }
 
         private void Player_Stopped(object sender, EventArgs e)
@@ -165,6 +179,13 @@ namespace Panacea.Modules.MediaPlayerContainer
             Refrain();
             _currentResponse?.RaiseStopped();
             Stopped?.Invoke(this, e);
+            if(_core.TryGetUiManager(out IUiManager ui))
+            {
+                if(ui.CurrentPage == _control)
+                {
+                    ui.GoBack();
+                }
+            }
         }
 
         private void Player_Paused(object sender, EventArgs e)
