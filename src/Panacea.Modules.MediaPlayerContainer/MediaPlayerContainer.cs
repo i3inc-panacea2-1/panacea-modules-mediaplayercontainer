@@ -114,7 +114,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         private void Player_Click(object sender, EventArgs e)
         {
             Click?.Invoke(this, EventArgs.Empty);
-            if (_pip.IsVisible) return;
+            if (_pip?.IsVisible == true) return;
             _fullscreenWindow?.Close();
             EmbedPlayer();
             _control.AreControlsVisible = CurrentRequest.ShowControls;
@@ -299,6 +299,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         void EmbedPlayer()
         {
             _control.View.RemoveChild();
+            _pip?.Close();
             switch (CurrentRequest.MediaPlayerPosition)
             {
                 case MediaPlayerPosition.Standalone:
@@ -337,6 +338,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         private void MediaPlayerHost_Unloaded(object sender, System.Windows.RoutedEventArgs e)
         {
             CurrentRequest.MediaPlayerHost.Unloaded -= MediaPlayerHost_Unloaded;
+            if (_pip?.IsVisible == true) return;
             Stop();
         }
 

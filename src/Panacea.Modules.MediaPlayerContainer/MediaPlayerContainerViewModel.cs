@@ -71,6 +71,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         private void _container_HasSubtitlesChanged(object sender, bool e)
         {
             HasClosedCaptions = e;
+            _container.CurrentMediaPlayer.SetSubtitles(ClosedCaptionsEnabled);
         }
 
         public override Type GetViewType()
@@ -318,7 +319,7 @@ namespace Panacea.Modules.MediaPlayerContainer
             CurrentTimeText = TimeSpan.FromMilliseconds(_totalTime.TotalMilliseconds * e).ToString("hh\\:mm\\:ss");
             if (!_dragging)
             {
-                _seekbarValue = e * 100;
+                _seekbarValue = e * 100.0;
                 OnPropertyChanged("SeekbarValue");
             }
         }
@@ -344,17 +345,18 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void _container_Opening(object sender, EventArgs e)
         {
+            SeekbarValue = 0.0;
             IsPlaying = true;
             SwitchPlayerButtonVisible = _container.AvailablePlayers.Count > 1;
         }
 
         private void _container_Playing(object sender, EventArgs e)
         {
-            _container_PositionChanged(this, _container.CurrentMediaPlayer.Position);
             _container.CurrentMediaPlayer.VideoControl.RemoveChild();
             CurrentVideoControl = _container.CurrentMediaPlayer.VideoControl;
             PauseButtonIcon = "pause";
             PauseButtonVisible = StopButtonVisible = true;
+          
         }
 
         private void _container_Error(object sender, Exception e)
