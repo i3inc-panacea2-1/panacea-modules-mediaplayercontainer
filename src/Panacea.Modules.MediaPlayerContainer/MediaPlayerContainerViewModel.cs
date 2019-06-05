@@ -372,6 +372,18 @@ namespace Panacea.Modules.MediaPlayerContainer
             _container.CurrentMediaPlayer.VideoControl.RemoveChild();
             CurrentVideoControl = _container.CurrentMediaPlayer.VideoControl;
         }
+        public override void Deactivate()
+        {
+            Deactivated?.Invoke(this, null);
+        }
+
+        public override void Activate()
+        {
+            Activated?.Invoke(this, null);
+        }
+
+        public event EventHandler Deactivated;
+        public event EventHandler Activated;
 
         public RelayCommand PreviousCommand { get; }
 

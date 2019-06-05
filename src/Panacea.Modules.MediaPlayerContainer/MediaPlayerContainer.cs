@@ -47,6 +47,18 @@ namespace Panacea.Modules.MediaPlayerContainer
         {
             if (_control != null) return;
             _control = new MediaPlayerContainerViewModel(this);
+            _control.Deactivated += _control_Deactivated;
+            _control.Activated += _control_Activated;
+        }
+        private void _control_Activated(object sender, EventArgs e)
+        {
+            _transitioning = false;
+        }
+        private void _control_Deactivated(object sender, EventArgs e)
+        {
+            if (_transitioning) return;
+            if (_pip?.IsVisible == true) return;
+            Stop();
         }
 
         private void _loader_PluginUnloaded(object sender, IPlugin e)
@@ -151,6 +163,7 @@ namespace Panacea.Modules.MediaPlayerContainer
             Refrain();
             _currentResponse?.RaiseError();
             Error?.Invoke(this, e);
+            RemoveChild();
             if (_core.TryGetUiManager(out IUiManager ui))
             {
                 if (ui.CurrentPage == _control)
@@ -165,6 +178,7 @@ namespace Panacea.Modules.MediaPlayerContainer
             Refrain();
             _currentResponse?.RaiseEnded();
             Ended?.Invoke(this, e);
+            RemoveChild();
             if (_core.TryGetUiManager(out IUiManager ui))
             {
                 if (ui.CurrentPage == _control)
@@ -179,6 +193,7 @@ namespace Panacea.Modules.MediaPlayerContainer
             Refrain();
             _currentResponse?.RaiseStopped();
             Stopped?.Invoke(this, e);
+            RemoveChild();
             if(_core.TryGetUiManager(out IUiManager ui))
             {
                 if(ui.CurrentPage == _control)
@@ -254,10 +269,11 @@ namespace Panacea.Modules.MediaPlayerContainer
                 .Where(p => p.CanPlayChannel(request.Media))
                 .ToList();
 
-            if (CurrentMediaPlayer != null && players.Contains(CurrentMediaPlayer))
+            if (CurrentMediaPlayer != null)
             {
-                DetachFromPlayer(CurrentMediaPlayer);
                 CurrentMediaPlayer.Stop();
+                DetachFromPlayer(CurrentMediaPlayer);
+                
             }
             CurrentRequest = request;
             _currentResponse = new MediaResponse(request);
@@ -303,7 +319,7 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         public void GoFullscreen()
         {
-            _control.View.RemoveChild();
+            RemoveChild();
             _fullscreenWindow = new Window()
             {
                 WindowState = WindowState.Maximized,
@@ -317,15 +333,18 @@ namespace Panacea.Modules.MediaPlayerContainer
             _fullscreenWindow.Show();
          }
 
+        bool _transitioning = false;
         void EmbedPlayer()
         {
-            _control.View.RemoveChild();
+            _transitioning = true;
+            
             _pip?.Close();
             switch (CurrentRequest.MediaPlayerPosition)
             {
                 case MediaPlayerPosition.Standalone:
                     if (_core.TryGetUiManager(out IUiManager ui))
                     {
+                        
                         ui.Navigate(_control, false);
                     }
                     break;
@@ -341,19 +360,36 @@ namespace Panacea.Modules.MediaPlayerContainer
                     }
                     break;
             }
+           
+        }
+
+        
+
+        void RemoveChild()
+        {
+            if (_core.TryGetUiManager(out IUiManager ui) && ui.CurrentPage == _control)
+            {
+                ui.GoBack();
+            }
+            else
+            {
+                _control.View.RemoveChild();
+            }
         }
 
         PipWindow _pip;
         internal void GoToPip()
         {
-            _pip = _pip ?? new PipWindow();
+            _transitioning = true;
+            RemoveChild();
+            _pip = new PipWindow();
             _control.AreControlsVisible = false;
-            _control.View.RemoveChild();
             _pip.viewer.Children.Add(_control.View);
             _pip.Width = 520;
             _pip.Height = 360;
             _pip.WindowState = WindowState.Normal;
             _pip.Show();
+            _transitioning = false;
         }
 
         private void MediaPlayerHost_Unloaded(object sender, System.Windows.RoutedEventArgs e)
