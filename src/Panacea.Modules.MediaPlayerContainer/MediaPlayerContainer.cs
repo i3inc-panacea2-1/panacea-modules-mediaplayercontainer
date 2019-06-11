@@ -319,8 +319,9 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         public void GoFullscreen()
         {
+            _transitioning = true;
             RemoveChild();
-            _fullscreenWindow = new Window()
+            _fullscreenWindow = new FullscreenWindow()
             {
                 WindowState = WindowState.Maximized,
                 WindowStyle = WindowStyle.None,

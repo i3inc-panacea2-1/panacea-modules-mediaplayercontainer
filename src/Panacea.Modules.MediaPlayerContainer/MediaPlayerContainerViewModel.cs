@@ -352,6 +352,7 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void _container_Playing(object sender, EventArgs e)
         {
+            IsPlaying = true;
             _container.CurrentMediaPlayer.VideoControl.RemoveChild();
             CurrentVideoControl = _container.CurrentMediaPlayer.VideoControl;
             PauseButtonIcon = "pause";

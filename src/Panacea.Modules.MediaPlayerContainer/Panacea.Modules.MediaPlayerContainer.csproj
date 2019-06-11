@@ -51,6 +51,9 @@
     <Compile Include="Converters\PercentageConverter.cs" />
     <Compile Include="Converters\SecondsToStringConverter.cs" />
     <Compile Include="FrameworkElementExtensions.cs" />
+    <Compile Include="FullscreenWindow.xaml.cs">
+      <DependentUpon>FullscreenWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PipWindow.xaml.cs">
       <DependentUpon>PipWindow.xaml</DependentUpon>
     </Compile>
@@ -63,6 +66,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="FullscreenWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="PipWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
