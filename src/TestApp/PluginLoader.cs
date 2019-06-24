@@ -37,6 +37,8 @@ namespace TestApp
 
         public event EventHandler<IPlugin> PluginLoaded;
         public event EventHandler<IPlugin> PluginUnloaded;
+        public event EventHandler LoadStarting;
+        public event EventHandler LoadFinished;
 
         public string GetPluginDirectory(string pluginName)
         {

@@ -1,4 +1,5 @@
 ﻿using Panacea.Controls;
+using Panacea.Modularity.MediaPlayerContainer;
 using Panacea.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -22,20 +23,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         public MediaPlayerContainerViewModel(MediaPlayerContainer container)
         {
             _container = container;
-            _container.Opening += _container_Opening;
-            _container.Error += _container_Error;
-            _container.Playing += _container_Playing;
-            _container.Paused += _container_Paused;
-            _container.Stopped += _container_Stopped;
-            _container.DurationChanged += _container_DurationChanged;
-            _container.PositionChanged += _container_PositionChanged;
-            _container.Ended += _container_Ended;
-            _container.Click += _container_Click;
-            _container.HasNextChanged += _container_HasNextChanged;
-            _container.HasPreviousChanged += _container_HasPreviousChanged;
-            _container.NowPlaying += _container_NowPlaying;
-            _container.HasSubtitlesChanged += _container_HasSubtitlesChanged;
-            _container.IsSeekableChanged += _container_IsSeekableChanged;
+            _container.ResponseChanged += _container_ResponseChanged;
             PauseCommand = new RelayCommand((args) =>
             {
                 if (_container.IsPlaying)
@@ -62,7 +50,54 @@ namespace Panacea.Modules.MediaPlayerContainer
 
             
         }
+        IMediaResponse _mediaResponse;
+        private void _container_ResponseChanged(object sender, IMediaResponse e)
+        {
+            if (_mediaResponse != null)
+            {
+                DetachFromResponse(_mediaResponse);
+            }
+            if (e != null)
+            {
+                _mediaResponse = e;
+                AttachToMediaResponse(e);
+            }
+        }
 
+        void AttachToMediaResponse(IMediaResponse response)
+        {
+            response.Opening += _container_Opening;
+            response.Error += _container_Error;
+            response.Playing += _container_Playing;
+            response.Paused += _container_Paused;
+            response.Stopped += _container_Stopped;
+            response.DurationChanged += _container_DurationChanged;
+            response.PositionChanged += _container_PositionChanged;
+            response.Ended += _container_Ended;
+            //response.Click += _container_Click;
+            response.HasNextChanged += _container_HasNextChanged;
+            response.HasPreviousChanged += _container_HasPreviousChanged;
+            response.NowPlaying += _container_NowPlaying;
+            response.HasSubtitlesChanged += _container_HasSubtitlesChanged;
+            response.IsSeekableChanged += _container_IsSeekableChanged;
+        }
+        void DetachFromResponse(IMediaResponse response)
+        {
+            response.Opening += _container_Opening;
+            response.Error += _container_Error;
+            response.Playing += _container_Playing;
+            response.Paused += _container_Paused;
+            response.Stopped += _container_Stopped;
+            response.DurationChanged += _container_DurationChanged;
+            response.PositionChanged += _container_PositionChanged;
+            response.Ended += _container_Ended;
+            //response.Click += _container_Click;
+            response.HasNextChanged += _container_HasNextChanged;
+            response.HasPreviousChanged += _container_HasPreviousChanged;
+            response.NowPlaying += _container_NowPlaying;
+            response.HasSubtitlesChanged += _container_HasSubtitlesChanged;
+            response.IsSeekableChanged += _container_IsSeekableChanged;
+        }
         private void _container_IsSeekableChanged(object sender, bool e)
         {
             IsSeekable = e;
@@ -300,13 +335,13 @@ namespace Panacea.Modules.MediaPlayerContainer
             NextButtonVisible = e;
         }
 
-        private void _container_Click(object sender, EventArgs e)
-        {
-            if (_fullscreenWindow != null)
-            {
-                _fullscreenWindow.Close();
-            }
-        }
+        //private void _container_Click(object sender, EventArgs e)
+        //{
+        //    if (_fullscreenWindow != null)
+        //    {
+        //        _fullscreenWindow.Close();
+        //    }
+        //}
 
         private void _container_Ended(object sender, EventArgs e)
         {

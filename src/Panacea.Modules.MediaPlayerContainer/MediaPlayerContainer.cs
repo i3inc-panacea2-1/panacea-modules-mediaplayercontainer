@@ -18,23 +18,20 @@ namespace Panacea.Modules.MediaPlayerContainer
         private readonly IPluginLoader _loader;
         private MediaPlayerContainerViewModel _control;
         private MediaResponse _currentResponse;
-        public event EventHandler<Exception> Error;
-        public event EventHandler<bool> IsSeekableChanged;
-        public event EventHandler<float> PositionChanged;
-        public event EventHandler IsPausableChanged;
-        public event EventHandler Opening;
-        public event EventHandler Playing;
-        public event EventHandler<string> NowPlaying;
-        public event EventHandler Stopped;
-        public event EventHandler Paused;
-        public event EventHandler Ended;
-        public event EventHandler<bool> HasSubtitlesChanged;
-        public event EventHandler<TimeSpan> DurationChanged;
-        public event EventHandler Click;
-        public event EventHandler<bool> HasNextChanged;
-        public event EventHandler<bool> HasPreviousChanged;
+        public MediaResponse CurrentResponse {
+            get => this._currentResponse;
+            set {
+                ResponseChanged?.Invoke(this, value);
+                this._currentResponse = value;
+            }
+        }
         Window _fullscreenWindow;
         public List<IMediaPlayerPlugin> AvailablePlayers { get; private set; }
+        public event EventHandler<IMediaResponse> ResponseChanged ;
+        internal void OnError(Exception ex)
+        {
+            CurrentResponse?.OnError(ex);
+        }
         public MediaPlayerContainer(PanaceaServices core)
         {
             _core = core;
@@ -115,54 +112,54 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void Player_HasPreviousChanged(object sender, bool e)
         {
-            HasPreviousChanged?.Invoke(this, e);
+            _currentResponse.HasPrevious = e;
+            _currentResponse.OnHasPreviousChanged(e);
         }
-
         private void Player_HasNextChanged(object sender, bool e)
         {
-            HasNextChanged?.Invoke(this, e);
+            _currentResponse.HasNext = e;
+            _currentResponse.OnHasNextChanged(e);
         }
-
         private void Player_Click(object sender, EventArgs e)
         {
-            Click?.Invoke(this, EventArgs.Empty);
             if (_pip?.IsVisible == true) return;
             _fullscreenWindow?.Close();
             EmbedPlayer();
             _control.AreControlsVisible = CurrentRequest.ShowControls;
             _control.VideoVisible = CurrentRequest.ShowVideo;
         }
-
         private void Player_DurationChanged(object sender, TimeSpan e)
         {
-            DurationChanged?.Invoke(this, e);
+            _currentResponse.Duration = e;
+            _currentResponse.OnDurationChanged(e);
         }
-
         private void Player_HasSubtitlesChanged(object sender, bool e)
         {
-            HasSubtitlesChanged?.Invoke(this, e);
+            _currentResponse.HasSubtitles = e;
+            _currentResponse.OnHasSubtitlesChanged(e);
         }
-
-        private void Player_IsPausableChanged(object sender, EventArgs e)
+        private void Player_IsPausableChanged(object sender, bool e)
         {
-            IsPausableChanged?.Invoke(this, e);
+            _currentResponse.IsPausable = e;
+            _currentResponse.OnIsPausableChanged(e);
         }
 
         private void Player_PositionChanged(object sender, float e)
         {
-            PositionChanged?.Invoke(this, e);
+            _currentResponse.Position = e;
+            _currentResponse.OnPositionChanged(e);
         }
 
         private void Player_IsSeekableChanged(object sender, bool e)
         {
-            IsSeekableChanged?.Invoke(this, e);
+            _currentResponse.IsSeekable = e;
+            _currentResponse.OnIsSeekableChanged(e);
         }
 
         private void Player_Error(object sender, Exception e)
         {
             Refrain();
-            _currentResponse?.RaiseError();
-            Error?.Invoke(this, e);
+            _currentResponse?.OnError(e);
             RemoveChild();
             if (_core.TryGetUiManager(out IUiManager ui))
             {
@@ -176,8 +173,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         private void Player_Ended(object sender, EventArgs e)
         {
             Refrain();
-            _currentResponse?.RaiseEnded();
-            Ended?.Invoke(this, e);
+            _currentResponse?.OnEnded();
             RemoveChild();
             if (_core.TryGetUiManager(out IUiManager ui))
             {
@@ -191,8 +187,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         private void Player_Stopped(object sender, EventArgs e)
         {
             Refrain();
-            _currentResponse?.RaiseStopped();
-            Stopped?.Invoke(this, e);
+            _currentResponse?.OnStopped();
             RemoveChild();
             if(_core.TryGetUiManager(out IUiManager ui))
             {
@@ -205,25 +200,26 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void Player_Paused(object sender, EventArgs e)
         {
-            Paused?.Invoke(this, e);
+            _currentResponse.OnPaused(e);
         }
 
         private void Player_NowPlaying(object sender, string e)
         {
-            NowPlaying?.Invoke(this, e);
+            _currentResponse.OnNowPlaying(e);
         }
 
         private void Player_Playing(object sender, EventArgs e)
         {
-            _currentResponse?.RaisePlaying();
-            Playing?.Invoke(this, e);
+            _currentResponse?.OnPlaying(e);
         }
 
         private void Player_Opening(object sender, EventArgs e)
         {
-            HasNextChanged?.Invoke(this, CurrentMediaPlayer.HasNext || CurrentRequest.MediaTraverser != null);
-            HasPreviousChanged?.Invoke(this, CurrentMediaPlayer.HasPrevious || CurrentRequest.MediaTraverser != null);
-            Opening?.Invoke(this, e);
+            bool hasNext = CurrentMediaPlayer.HasNext || CurrentRequest.MediaTraverser != null;
+            Player_HasNextChanged(sender, hasNext);
+            bool hasPrevious = CurrentMediaPlayer.HasPrevious || CurrentRequest.MediaTraverser != null;
+            Player_HasPreviousChanged(sender, hasPrevious);
+            _currentResponse.OnOpening(e);
         }
 
         public MediaRequest CurrentRequest { get; private set; }
@@ -283,13 +279,13 @@ namespace Panacea.Modules.MediaPlayerContainer
             if (players.Count == 1)
             {
                 CurrentMediaPlayer = players.First();
-                HasSubtitlesChanged?.Invoke(this, false);
+                Player_HasSubtitlesChanged(this, false);
                 _control.AreControlsVisible = request.ShowControls;
                 _control.VideoVisible = request.ShowVideo;
                 _control.NowPlayingText = request.Media.Name;
-                IsSeekableChanged?.Invoke(this, false);
-                PositionChanged?.Invoke(this, 0f);
-                DurationChanged?.Invoke(this, TimeSpan.FromSeconds(0));
+                Player_IsSeekableChanged(this, false);
+                Player_PositionChanged(this, 0f);
+                Player_DurationChanged(this, TimeSpan.FromSeconds(0));
                 PlayInternal();
             }
             else
@@ -310,8 +306,7 @@ namespace Panacea.Modules.MediaPlayerContainer
             }
             catch (Exception ex)
             {
-                _currentResponse?.RaiseError();
-                Error?.Invoke(this, ex);
+                _currentResponse?.OnError(ex);
                 DetachFromPlayer(CurrentMediaPlayer);
             }
 

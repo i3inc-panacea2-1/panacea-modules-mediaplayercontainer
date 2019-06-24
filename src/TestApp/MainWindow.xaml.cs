@@ -20,7 +20,7 @@ namespace TestApp
         {
             InitializeComponent();
             _loader = new PluginLoader();
-            _core = new PanaceaServices(null, null, _loader, null, null);
+            _core = new PanaceaServices(null, null, _loader, null, null, null);
             _loader.LoadPlugin(new MediaPlayerContainer(_core));
             _loader.LoadPlugin(new SampleMediaPlayer());
             _loader.LoadPlugin(new UiManagerPlugin(this.Container));

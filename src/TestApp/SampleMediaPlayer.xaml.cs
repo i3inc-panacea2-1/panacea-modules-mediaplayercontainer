@@ -32,6 +32,19 @@ namespace TestApp
             _timer.Interval = TimeSpan.FromMilliseconds(500);
         }
 
+        event EventHandler<bool> IMediaPlayer.IsPausableChanged
+        {
+            add
+            {
+                throw new NotImplementedException();
+            }
+
+            remove
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         private void _timer_Tick(object sender, EventArgs e)
         {
             Console.WriteLine("dur");
