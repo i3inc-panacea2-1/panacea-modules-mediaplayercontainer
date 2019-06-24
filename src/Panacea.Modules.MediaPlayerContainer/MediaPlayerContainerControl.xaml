@@ -11,7 +11,6 @@
     xmlns:system="clr-namespace:System;assembly=mscorlib"
     d:DesignHeight="450"
     d:DesignWidth="800"
-    pcontrols:Material.RelativeFontSizeRatio="1.0"
     mc:Ignorable="d">
     <UserControl.DataContext>
         <x:Type Type="local:MediaPlayerContainerViewModel" />
@@ -83,7 +82,7 @@
             <TextBlock
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                pcontrols:Material.RelativeFontSizeRatio="1.3"
+               FontSize="{DynamicResource FontSize-X-Large}"
                 Foreground="White"
                 Text="Select media to play" />
         </Grid>
@@ -110,14 +109,13 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
                 <TextBlock
-                    pcontrols:Material.RelativeFontSizeRatio=".8"
+                    FontSize="{DynamicResource FontSize-Small}"
                     Foreground="#77ffffff"
                     Text="{multilinguality:Translate 'Now Playing',
                                                      'core'}" />
                 <TextBlock
                     Grid.Row="1"
                     MaxHeight="300"
-                    pcontrols:Material.RelativeFontSizeRatio="1.0"
                     Foreground="White"
                     Text="{Binding NowPlayingText}"
                     TextWrapping="Wrap" />
@@ -134,7 +132,7 @@
                     <TextBlock
                         Margin="0,0,5,0"
                         VerticalAlignment="Center"
-                        pcontrols:Material.RelativeFontSizeRatio=".9"
+                        FontSize="{DynamicResource FontSize-Small}"
                         Foreground="White"
                         Text="{Binding CurrentTimeText}" />
                     <Slider
@@ -150,7 +148,7 @@
                         Grid.Column="2"
                         Margin="5,0,0,0"
                         VerticalAlignment="Center"
-                        pcontrols:Material.RelativeFontSizeRatio=".9"
+                        FontSize="{DynamicResource FontSize-Small}"
                         Foreground="White"
                         Text="{Binding TotalTimeText}" />
                 </Grid>
