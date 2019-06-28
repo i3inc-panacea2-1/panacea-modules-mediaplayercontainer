@@ -155,35 +155,23 @@
 
 
 
-                <Grid
+                <UniformGrid
+                    Rows="1"
                     Grid.Row="3"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Center">
-                    <Grid.Resources>
+                    <UniformGrid.Resources>
                         <system:Double x:Key="Min">1.0</system:Double>
                         <system:Double x:Key="Max">8.0</system:Double>
-                    </Grid.Resources>
-                    <Grid.MaxHeight>
+                    </UniformGrid.Resources>
+                    <UniformGrid.MaxHeight>
                         <MultiBinding Converter="{StaticResource HeightConverter}">
                             <Binding ElementName="VideoContainer" Path="ActualHeight"/>
                             <Binding Source="{StaticResource Min}"/>
                             <Binding Source="{StaticResource Max}"/>
                         </MultiBinding>
-                    </Grid.MaxHeight>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
+                    </UniformGrid.MaxHeight>
+                   
 
                     <Button
                         Grid.Column="0"
@@ -214,26 +202,26 @@
                         <pcontrols:MaterialIcon Name="NextButtonIcon" Icon="navigate_next" />
 
                     </Button>
-                    <pcontrols:MaterialIcon
-                        Grid.Column="4"
-                        Margin="5"
-                        Foreground="White"
-                        Icon="volume_up" />
-                    <Slider
-                        Name="volSlider"
-                        Grid.Column="5"
-                        Grid.ColumnSpan="3"
-                        MinWidth="80"
-                        Margin="-5,8,8,8"
-                        VerticalAlignment="Center"
-                        pcontrols:Material.Label="{Binding RelativeSource={RelativeSource Self}, Path=Value, Converter={StaticResource PercentageConverter}}"
-                        Foreground="#289ae9"
-                        LargeChange="10"
-                        Maximum="100"
-                        Minimum="0"
-                        SmallChange="1"
-                        Value="{Binding ElementName=Main, Path=AudioManager.SpeakersVolumePercentage, Mode=TwoWay}" />
 
+                    <Button
+                        Name="VolDownButton"
+                        Grid.Column="4"
+                        Command="{Binding NextCommand}">
+
+                        <pcontrols:MaterialIcon Icon="volume_down" />
+
+                    </Button>
+                    
+                    <Button
+                        Name="VolUpButton"
+                        Grid.Column="4"
+                        Command="{Binding NextCommand}">
+
+                        <pcontrols:MaterialIcon Icon="volume_up" />
+
+                    </Button>
+
+                  
 
 
                     <ToggleButton
@@ -273,7 +261,7 @@
                             Margin="2"
                             Icon="fullscreen" />
                     </Button>
-                </Grid>
+                </UniformGrid>
             </Grid>
         </Grid>
     </Grid>

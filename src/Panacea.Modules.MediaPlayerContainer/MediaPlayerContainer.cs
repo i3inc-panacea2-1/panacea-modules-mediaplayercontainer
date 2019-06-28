@@ -112,8 +112,8 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void Player_HasPreviousChanged(object sender, bool e)
         {
-            _currentResponse.HasPrevious = e;
-            _currentResponse.OnHasPreviousChanged(e);
+            CurrentResponse.HasPrevious = e;
+            CurrentResponse.OnHasPreviousChanged(e);
         }
         private void Player_HasNextChanged(object sender, bool e)
         {
@@ -130,13 +130,13 @@ namespace Panacea.Modules.MediaPlayerContainer
         }
         private void Player_DurationChanged(object sender, TimeSpan e)
         {
-            _currentResponse.Duration = e;
-            _currentResponse.OnDurationChanged(e);
+            CurrentResponse.Duration = e;
+            CurrentResponse.OnDurationChanged(e);
         }
         private void Player_HasSubtitlesChanged(object sender, bool e)
         {
-            _currentResponse.HasSubtitles = e;
-            _currentResponse.OnHasSubtitlesChanged(e);
+            CurrentResponse.HasSubtitles = e;
+            CurrentResponse.OnHasSubtitlesChanged(e);
         }
         private void Player_IsPausableChanged(object sender, bool e)
         {
@@ -146,20 +146,20 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void Player_PositionChanged(object sender, float e)
         {
-            _currentResponse.Position = e;
-            _currentResponse.OnPositionChanged(e);
+            CurrentResponse.Position = e;
+            CurrentResponse.OnPositionChanged(e);
         }
 
         private void Player_IsSeekableChanged(object sender, bool e)
         {
-            _currentResponse.IsSeekable = e;
-            _currentResponse.OnIsSeekableChanged(e);
+            CurrentResponse.IsSeekable = e;
+            CurrentResponse.OnIsSeekableChanged(e);
         }
 
         private void Player_Error(object sender, Exception e)
         {
             Refrain();
-            _currentResponse?.OnError(e);
+            CurrentResponse?.OnError(e);
             RemoveChild();
             if (_core.TryGetUiManager(out IUiManager ui))
             {
@@ -173,7 +173,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         private void Player_Ended(object sender, EventArgs e)
         {
             Refrain();
-            _currentResponse?.OnEnded();
+            CurrentResponse?.OnEnded();
             RemoveChild();
             if (_core.TryGetUiManager(out IUiManager ui))
             {
@@ -187,7 +187,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         private void Player_Stopped(object sender, EventArgs e)
         {
             Refrain();
-            _currentResponse?.OnStopped();
+            CurrentResponse?.OnStopped();
             RemoveChild();
             if(_core.TryGetUiManager(out IUiManager ui))
             {
@@ -200,17 +200,17 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void Player_Paused(object sender, EventArgs e)
         {
-            _currentResponse.OnPaused(e);
+            CurrentResponse.OnPaused(e);
         }
 
         private void Player_NowPlaying(object sender, string e)
         {
-            _currentResponse.OnNowPlaying(e);
+            CurrentResponse.OnNowPlaying(e);
         }
 
         private void Player_Playing(object sender, EventArgs e)
         {
-            _currentResponse?.OnPlaying(e);
+            CurrentResponse?.OnPlaying(e);
         }
 
         private void Player_Opening(object sender, EventArgs e)
@@ -219,7 +219,7 @@ namespace Panacea.Modules.MediaPlayerContainer
             Player_HasNextChanged(sender, hasNext);
             bool hasPrevious = CurrentMediaPlayer.HasPrevious || CurrentRequest.MediaTraverser != null;
             Player_HasPreviousChanged(sender, hasPrevious);
-            _currentResponse.OnOpening(e);
+            CurrentResponse.OnOpening(e);
         }
 
         public MediaRequest CurrentRequest { get; private set; }
@@ -272,7 +272,7 @@ namespace Panacea.Modules.MediaPlayerContainer
                 
             }
             CurrentRequest = request;
-            _currentResponse = new MediaResponse(request);
+            CurrentResponse = new MediaResponse(request);
             AvailablePlayers = players;
 
 
@@ -292,7 +292,7 @@ namespace Panacea.Modules.MediaPlayerContainer
             {
                 // show popup and then open
             }
-            return _currentResponse;
+            return CurrentResponse;
         }
 
         private void PlayInternal()
@@ -306,7 +306,7 @@ namespace Panacea.Modules.MediaPlayerContainer
             }
             catch (Exception ex)
             {
-                _currentResponse?.OnError(ex);
+                CurrentResponse?.OnError(ex);
                 DetachFromPlayer(CurrentMediaPlayer);
             }
 
