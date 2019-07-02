@@ -272,7 +272,7 @@ namespace Panacea.Modules.MediaPlayerContainer
                 
             }
             CurrentRequest = request;
-            CurrentResponse = new MediaResponse(request);
+            CurrentResponse = new MediaResponse(request, this);
             AvailablePlayers = players;
 
 

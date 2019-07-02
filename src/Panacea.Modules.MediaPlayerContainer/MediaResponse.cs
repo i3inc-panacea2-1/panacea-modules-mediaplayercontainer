@@ -10,11 +10,14 @@ namespace Panacea.Modules.MediaPlayerContainer
 {
     public class MediaResponse : IMediaResponse
     {
-        public MediaResponse(MediaRequest request)
+        public MediaResponse(MediaRequest request, MediaPlayerContainer player)
         {
             Request = request;
+            _player = player;
         }
         public MediaRequest Request { get; private set; }
+
+        private readonly MediaPlayerContainer _player;
 
         public event EventHandler Playing;
         internal void RaisePlaying()
@@ -66,35 +69,35 @@ namespace Panacea.Modules.MediaPlayerContainer
         public event EventHandler<string> NowPlaying;
         public event EventHandler Paused;
 
-
         public void Next()
         {
-            throw new NotImplementedException();
+            _player?.Next();
         }
-
+        
         public void Previous()
         {
-            throw new NotImplementedException();
+            _player?.Previous();
         }
-
+        
         public void Play()
         {
-            throw new NotImplementedException();
+            _player?.Play();
         }
-
+        
         public void Stop()
         {
-            throw new NotImplementedException();
+            _player?.Stop();
         }
 
+        
         public void Pause()
         {
-            throw new NotImplementedException();
+            _player?.Pause();
         }
 
         public void SetSubtitles(bool on)
         {
-            throw new NotImplementedException();
+            _player?.SetSubtitles(on);
         }
 
         internal void OnHasPreviousChanged(bool e)
