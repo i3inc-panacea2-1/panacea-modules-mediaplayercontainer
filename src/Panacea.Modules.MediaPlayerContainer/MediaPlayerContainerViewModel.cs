@@ -1,5 +1,8 @@
 ﻿using Panacea.Controls;
+using Panacea.Core;
+using Panacea.Modularity.AudioManager;
 using Panacea.Modularity.MediaPlayerContainer;
+using Panacea.Modularity.UiManager;
 using Panacea.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -14,13 +17,13 @@ namespace Panacea.Modules.MediaPlayerContainer
 {
 
     [View(typeof(MediaPlayerContainerControl))]
-    public class MediaPlayerContainerViewModel : ViewModelBase
+    public class MediaPlayerContainerViewModel : PopupViewModelBase<object>
     {
         private readonly MediaPlayerContainer _container;
         Window _fullscreenWindow;
         private TimeSpan _totalTime;
 
-        public MediaPlayerContainerViewModel(MediaPlayerContainer container)
+        public MediaPlayerContainerViewModel(MediaPlayerContainer container, PanaceaServices core)
         {
             _container = container;
             _container.ResponseChanged += _container_ResponseChanged;
@@ -47,9 +50,35 @@ namespace Panacea.Modules.MediaPlayerContainer
             {
                 container.GoToPip();
             });
+            VolumeUpCommand = new RelayCommand(args =>
+            {
+                if (core.TryGetAudioManager(out IAudioManager audio))
+                {
+                    var v = audio.SpeakersVolume;
+                    audio.SpeakersVolume = RoundBy5Up(v) + 5;
+                }
+            });
 
-            
+            VolumeDownCommand = new RelayCommand(args =>
+            {
+                if (core.TryGetAudioManager(out IAudioManager audio))
+                {
+                    var v = audio.SpeakersVolume;
+                    audio.SpeakersVolume = RoundBy5Down(v) - 5;
+                }
+            });
         }
+
+        int RoundBy5Down(int v)
+        {
+            return (int)(v / 10 * 10.0 + Math.Ceiling(v % 10 / 5.0) * 5);
+        }
+
+        int RoundBy5Up(int v)
+        {
+            return (int)(v / 10 * 10.0 + Math.Floor(v % 10 / 5.0) * 5);
+        }
+
         IMediaResponse _mediaResponse;
         private void _container_ResponseChanged(object sender, IMediaResponse e)
         {
@@ -288,7 +317,7 @@ namespace Panacea.Modules.MediaPlayerContainer
                 Task.Delay(TimeSpan.FromMilliseconds(500)).ContinueWith(task =>
                 {
                     if (cts.IsCancellationRequested) return;
-                    _container.Position = (float)(_seekbarValue/100.0);
+                    _container.Position = (float)(_seekbarValue / 100.0);
                     _dragging = false;
                 });
 
@@ -392,7 +421,7 @@ namespace Panacea.Modules.MediaPlayerContainer
             CurrentVideoControl = _container.CurrentMediaPlayer.VideoControl;
             PauseButtonIcon = "pause";
             PauseButtonVisible = StopButtonVisible = true;
-          
+
         }
 
         private void _container_Error(object sender, Exception e)
@@ -432,6 +461,11 @@ namespace Panacea.Modules.MediaPlayerContainer
         public RelayCommand FullscreenCommand { get; }
 
         public RelayCommand PipCommand { get; }
+
+        public RelayCommand VolumeUpCommand { get; }
+
+
+        public RelayCommand VolumeDownCommand { get; }
 
 
     }

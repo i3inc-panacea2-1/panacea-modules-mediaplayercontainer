@@ -43,7 +43,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         private void CreateMediaControl()
         {
             if (_control != null) return;
-            _control = new MediaPlayerContainerViewModel(this);
+            _control = new MediaPlayerContainerViewModel(this, _core);
             _control.Deactivated += _control_Deactivated;
             _control.Activated += _control_Activated;
         }
@@ -188,14 +188,15 @@ namespace Panacea.Modules.MediaPlayerContainer
         {
             Refrain();
             CurrentResponse?.OnStopped();
-            RemoveChild();
             if(_core.TryGetUiManager(out IUiManager ui))
             {
+                ui.HidePopup(_control);
                 if(ui.CurrentPage == _control)
                 {
                     ui.GoBack();
                 }
             }
+            RemoveChild();
         }
 
         private void Player_Paused(object sender, EventArgs e)
@@ -353,6 +354,12 @@ namespace Panacea.Modules.MediaPlayerContainer
                     {
                         _control.VideoVisible = false;
                         uii.Notify(_control);
+                    }
+                    break;
+                case MediaPlayerPosition.Popup:
+                    if (_core.TryGetUiManager(out IUiManager uii2))
+                    {
+                        uii2.ShowPopup(_control, "", PopupType.Empty, true, false);
                     }
                     break;
             }

@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 
 
 namespace Panacea.Modules.MediaPlayerContainer
@@ -11,6 +12,11 @@ namespace Panacea.Modules.MediaPlayerContainer
         public MediaPlayerContainerControl()
         {
             InitializeComponent();
+        }
+
+        protected override Size MeasureOverride(Size constraint)
+        {
+            return constraint;
         }
 
     }

@@ -25,7 +25,7 @@
             <converters:SecondsToStringConverter x:Key="SecondsToStringConverter" />
             <BooleanToVisibilityConverter x:Key="BoolToVis" />
             <converters:NotBooleanToVisibilityConverter x:Key="NotBoolToVis" />
-            <converters:HeightConverter x:Key="HeightConverter"/>
+            <converters:HeightConverter x:Key="HeightConverter" />
             <Style BasedOn="{StaticResource SimpleButton}" TargetType="Button">
                 <Style.Setters>
                     <Setter Property="Padding" Value="0" />
@@ -82,7 +82,7 @@
             <TextBlock
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-               FontSize="{DynamicResource FontSize-X-Large}"
+                FontSize="{DynamicResource FontSize-X-Large}"
                 Foreground="White"
                 Text="Select media to play" />
         </Grid>
@@ -112,7 +112,8 @@
                     FontSize="{DynamicResource FontSize-Small}"
                     Foreground="#77ffffff"
                     Text="{multilinguality:Translate 'Now Playing',
-                                                     'core'}" />
+                                                     'core'}" 
+                   Name="NowPlayingText"/>
                 <TextBlock
                     Grid.Row="1"
                     MaxHeight="300"
@@ -156,23 +157,21 @@
 
 
                 <UniformGrid
-                    Rows="1"
                     Grid.Row="3"
                     HorizontalAlignment="Stretch"
-                    VerticalAlignment="Center">
+                    VerticalAlignment="Center"
+                    Rows="1"
+                    Columns="8">
                     <UniformGrid.Resources>
-                        <system:Double x:Key="Min">1.0</system:Double>
+                        <system:Double x:Key="Min">3.0</system:Double>
                         <system:Double x:Key="Max">8.0</system:Double>
                     </UniformGrid.Resources>
                     <UniformGrid.MaxHeight>
                         <MultiBinding Converter="{StaticResource HeightConverter}">
-                            <Binding ElementName="VideoContainer" Path="ActualHeight"/>
+                            <Binding ElementName="NowPlayingText" Path="ActualHeight"/>
                             <Binding Source="{StaticResource Min}"/>
-                            <Binding Source="{StaticResource Max}"/>
                         </MultiBinding>
                     </UniformGrid.MaxHeight>
-                   
-
                     <Button
                         Grid.Column="0"
                         Command="{Binding PauseCommand}"
@@ -185,19 +184,20 @@
                         Command="{Binding StopCommand}">
                         <pcontrols:MaterialIcon Name="StopButtonIcon" Icon="stop" />
                     </Button>
+                    
                     <Button
                         Name="PreviousButton"
                         Grid.Column="2"
                         Command="{Binding PreviousCommand}"
-                        Visibility="{Binding PreviousButtonVisible, Converter={StaticResource BoolToVis}}">
+                        IsEnabled="{Binding PreviousButtonVisible}">
                         <pcontrols:MaterialIcon Name="PreviousButtonIcon" Icon="navigate_before" />
                     </Button>
-
+                    
                     <Button
                         Name="NextButton"
                         Grid.Column="3"
                         Command="{Binding NextCommand}"
-                        Visibility="{Binding NextButtonVisible, Converter={StaticResource BoolToVis}}">
+                        IsEnabled="{Binding NextButtonVisible}">
 
                         <pcontrols:MaterialIcon Name="NextButtonIcon" Icon="navigate_next" />
 
@@ -206,22 +206,22 @@
                     <Button
                         Name="VolDownButton"
                         Grid.Column="4"
-                        Command="{Binding NextCommand}">
+                        Command="{Binding VolumeDownCommand}">
 
                         <pcontrols:MaterialIcon Icon="volume_down" />
 
                     </Button>
-                    
+
                     <Button
                         Name="VolUpButton"
                         Grid.Column="4"
-                        Command="{Binding NextCommand}">
+                        Command="{Binding VolumeUpCommand}">
 
                         <pcontrols:MaterialIcon Icon="volume_up" />
 
                     </Button>
 
-                  
+
 
 
                     <ToggleButton
@@ -236,22 +236,16 @@
                             Icon="closed_caption" />
                     </ToggleButton>
 
-                    <Button Name="PipButton" Grid.Column="9"
-                            Command="{Binding PipCommand}">
+                    <Button
+                        Name="PipButton"
+                        Grid.Column="9"
+                        Command="{Binding PipCommand}"
+                        Visibility="Collapsed">
                         <pcontrols:MaterialIcon
                             Name="PipButtonIcon"
                             Margin="5"
                             Icon="picture_in_picture_alt" />
                     </Button>
-
-
-                    <Button Name="SwitchPlayerButton" Grid.Column="10">
-                        <pcontrols:MaterialIcon
-                            Name="ScreenCastButtonIcon"
-                            Margin="6"
-                            Icon="open_in_browser" />
-                    </Button>
-
                     <Button
                         Name="FullscreenButton"
                         Grid.Column="11"
