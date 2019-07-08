@@ -16,7 +16,9 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         protected override Size MeasureOverride(Size constraint)
         {
-            return constraint;
+            if(constraint.Width != double.PositiveInfinity && constraint.Height != double.PositiveInfinity)
+                return constraint;
+            return base.MeasureOverride(constraint);
         }
 
     }

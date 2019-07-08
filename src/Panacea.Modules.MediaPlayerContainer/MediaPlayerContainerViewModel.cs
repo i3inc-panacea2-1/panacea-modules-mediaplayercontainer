@@ -3,6 +3,7 @@ using Panacea.Core;
 using Panacea.Modularity.AudioManager;
 using Panacea.Modularity.MediaPlayerContainer;
 using Panacea.Modularity.UiManager;
+using Panacea.Multilinguality;
 using Panacea.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -19,12 +20,14 @@ namespace Panacea.Modules.MediaPlayerContainer
     [View(typeof(MediaPlayerContainerControl))]
     public class MediaPlayerContainerViewModel : PopupViewModelBase<object>
     {
+        private readonly PanaceaServices _core;
         private readonly MediaPlayerContainer _container;
         Window _fullscreenWindow;
         private TimeSpan _totalTime;
 
         public MediaPlayerContainerViewModel(MediaPlayerContainer container, PanaceaServices core)
         {
+            _core = core;
             _container = container;
             _container.ResponseChanged += _container_ResponseChanged;
             PauseCommand = new RelayCommand((args) =>
@@ -57,6 +60,14 @@ namespace Panacea.Modules.MediaPlayerContainer
                     var v = audio.SpeakersVolume;
                     audio.SpeakersVolume = RoundBy5Up(v) + 5;
                 }
+            },
+            args =>
+            {
+                if (core.TryGetAudioManager(out IAudioManager audio))
+                {
+                    return audio.SpeakersVolume < 100;
+                }
+                return false;
             });
 
             VolumeDownCommand = new RelayCommand(args =>
@@ -66,7 +77,24 @@ namespace Panacea.Modules.MediaPlayerContainer
                     var v = audio.SpeakersVolume;
                     audio.SpeakersVolume = RoundBy5Down(v) - 5;
                 }
+            },
+            args =>
+            {
+                if (core.TryGetAudioManager(out IAudioManager audio))
+                {
+                    return audio.SpeakersVolume > 0;
+                }
+                return false;
             });
+        }
+
+        public override void Close()
+        {
+            _container.Stop();
+            //if(_core.TryGetUiManager(out IUiManager ui))
+            //{
+            //    ui.HidePopup(this);
+            //}
         }
 
         int RoundBy5Down(int v)
@@ -410,7 +438,6 @@ namespace Panacea.Modules.MediaPlayerContainer
         private void _container_Opening(object sender, EventArgs e)
         {
             SeekbarValue = 0.0;
-            IsPlaying = true;
             SwitchPlayerButtonVisible = _container.AvailablePlayers.Count > 1;
         }
 
@@ -427,6 +454,10 @@ namespace Panacea.Modules.MediaPlayerContainer
         private void _container_Error(object sender, Exception e)
         {
             IsPlaying = false;
+            if(_core.TryGetUiManager(out IUiManager ui))
+            {
+                ui.Toast(new Translator("MediaPlayerContainer").Translate("Media failed to play"));
+            }
         }
 
 
@@ -445,6 +476,17 @@ namespace Panacea.Modules.MediaPlayerContainer
         public override void Activate()
         {
             Activated?.Invoke(this, null);
+        }
+
+        bool _fullscreenVisible;
+        public bool FullscreenVisible
+        {
+            get => _fullscreenVisible;
+            set
+            {
+                _fullscreenVisible = value;
+                OnPropertyChanged();
+            }
         }
 
         public event EventHandler Deactivated;

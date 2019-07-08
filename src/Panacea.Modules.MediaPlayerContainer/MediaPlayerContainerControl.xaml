@@ -79,12 +79,19 @@
     </UserControl.Resources>
     <Grid Background="Black">
         <Grid Name="LoadingGrid" Visibility="{Binding IsPlaying, Converter={StaticResource NotBoolToVis}}">
-            <TextBlock
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                FontSize="{DynamicResource FontSize-X-Large}"
-                Foreground="White"
-                Text="Select media to play" />
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            <Viewbox Grid.Row="1" Grid.Column="1">
+                <ProgressBar Foreground="White" IsIndeterminate="True" />
+            </Viewbox>
         </Grid>
         <Grid Visibility="{Binding IsPlaying, Converter={StaticResource BoolToVis}}">
             <Grid.RowDefinitions>
@@ -109,11 +116,11 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
                 <TextBlock
+                    Name="NowPlayingText"
                     FontSize="{DynamicResource FontSize-Small}"
                     Foreground="#77ffffff"
                     Text="{multilinguality:Translate 'Now Playing',
-                                                     'core'}" 
-                   Name="NowPlayingText"/>
+                                                     'core'}" />
                 <TextBlock
                     Grid.Row="1"
                     MaxHeight="300"
@@ -160,16 +167,16 @@
                     Grid.Row="3"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Center"
-                    Rows="1"
-                    Columns="8">
+                    Columns="8"
+                    Rows="1">
                     <UniformGrid.Resources>
                         <system:Double x:Key="Min">3.0</system:Double>
                         <system:Double x:Key="Max">8.0</system:Double>
                     </UniformGrid.Resources>
                     <UniformGrid.MaxHeight>
                         <MultiBinding Converter="{StaticResource HeightConverter}">
-                            <Binding ElementName="NowPlayingText" Path="ActualHeight"/>
-                            <Binding Source="{StaticResource Min}"/>
+                            <Binding ElementName="NowPlayingText" Path="ActualHeight" />
+                            <Binding Source="{StaticResource Min}" />
                         </MultiBinding>
                     </UniformGrid.MaxHeight>
                     <Button
@@ -184,7 +191,7 @@
                         Command="{Binding StopCommand}">
                         <pcontrols:MaterialIcon Name="StopButtonIcon" Icon="stop" />
                     </Button>
-                    
+
                     <Button
                         Name="PreviousButton"
                         Grid.Column="2"
@@ -192,24 +199,20 @@
                         IsEnabled="{Binding PreviousButtonVisible}">
                         <pcontrols:MaterialIcon Name="PreviousButtonIcon" Icon="navigate_before" />
                     </Button>
-                    
+
                     <Button
                         Name="NextButton"
                         Grid.Column="3"
                         Command="{Binding NextCommand}"
                         IsEnabled="{Binding NextButtonVisible}">
-
                         <pcontrols:MaterialIcon Name="NextButtonIcon" Icon="navigate_next" />
-
                     </Button>
 
                     <Button
                         Name="VolDownButton"
                         Grid.Column="4"
                         Command="{Binding VolumeDownCommand}">
-
                         <pcontrols:MaterialIcon Icon="volume_down" />
-
                     </Button>
 
                     <Button
@@ -249,7 +252,8 @@
                     <Button
                         Name="FullscreenButton"
                         Grid.Column="11"
-                        Command="{Binding FullscreenCommand}">
+                        Command="{Binding FullscreenCommand}"
+                        Visibility="{Binding FullscreenVisible, Converter={StaticResource BoolToVis}}">
                         <pcontrols:MaterialIcon
                             Name="FullscreenButtonIcon"
                             Margin="2"

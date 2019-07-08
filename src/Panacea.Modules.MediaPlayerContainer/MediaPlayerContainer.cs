@@ -123,11 +123,18 @@ namespace Panacea.Modules.MediaPlayerContainer
         private void Player_Click(object sender, EventArgs e)
         {
             if (_pip?.IsVisible == true) return;
+            ExitFullscreen();
+        }
+
+        void ExitFullscreen()
+        {
             _fullscreenWindow?.Close();
+            RemoveChild();
             EmbedPlayer();
             _control.AreControlsVisible = CurrentRequest.ShowControls;
             _control.VideoVisible = CurrentRequest.ShowVideo;
         }
+
         private void Player_DurationChanged(object sender, TimeSpan e)
         {
             CurrentResponse.Duration = e;
@@ -284,6 +291,7 @@ namespace Panacea.Modules.MediaPlayerContainer
                 _control.AreControlsVisible = request.ShowControls;
                 _control.VideoVisible = request.ShowVideo;
                 _control.NowPlayingText = request.Media.Name;
+                _control.NextButtonVisible = _control.PreviousButtonVisible = false;
                 Player_IsSeekableChanged(this, false);
                 Player_PositionChanged(this, 0f);
                 Player_DurationChanged(this, TimeSpan.FromSeconds(0));
@@ -316,6 +324,10 @@ namespace Panacea.Modules.MediaPlayerContainer
         public void GoFullscreen()
         {
             _transitioning = true;
+            if (_core.TryGetUiManager(out IUiManager ui))
+            {
+                ui.HidePopup(_control);
+            }
             RemoveChild();
             _fullscreenWindow = new FullscreenWindow()
             {
@@ -326,15 +338,22 @@ namespace Panacea.Modules.MediaPlayerContainer
                 Content = _control.View,
                 Topmost = true
             };
+            _fullscreenWindow.PreviewMouseDown += _fullscreenWindow_PreviewMouseDown;
             _control.AreControlsVisible = false;
             _fullscreenWindow.Show();
          }
+
+        private void _fullscreenWindow_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (_pip?.IsVisible == true) return;
+            ExitFullscreen();
+        }
 
         bool _transitioning = false;
         void EmbedPlayer()
         {
             _transitioning = true;
-            
+            _control.FullscreenVisible = true;
             _pip?.Close();
             switch (CurrentRequest.MediaPlayerPosition)
             {
@@ -353,6 +372,7 @@ namespace Panacea.Modules.MediaPlayerContainer
                     if (_core.TryGetUiManager(out IUiManager uii))
                     {
                         _control.VideoVisible = false;
+                        _control.FullscreenVisible = false;
                         uii.Notify(_control);
                     }
                     break;
