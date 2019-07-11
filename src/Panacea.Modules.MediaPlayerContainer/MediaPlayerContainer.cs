@@ -28,18 +28,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         Window _fullscreenWindow;
         public List<IMediaPlayerPlugin> AvailablePlayers { get; private set; }
         public event EventHandler<IMediaResponse> ResponseChanged ;
-        internal void OnError(Exception ex)
-        {
-            if (_core.TryGetUiManager(out IUiManager ui))
-            {
-                ui.HidePopup(_control);
-                if (ui.CurrentPage == _control)
-                {
-                    ui.GoBack();
-                }
-            }
-            CurrentResponse?.OnError(ex);
-        }
+
         public MediaPlayerContainer(PanaceaServices core)
         {
             _core = core;
@@ -173,11 +162,13 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void Player_Error(object sender, Exception e)
         {
+            _core.Logger.Error(this, e.Message);
             Refrain();
             CurrentResponse?.OnError(e);
             RemoveChild();
             if (_core.TryGetUiManager(out IUiManager ui))
             {
+                ui.HidePopup(_control);
                 if (ui.CurrentPage == _control)
                 {
                     ui.GoBack();

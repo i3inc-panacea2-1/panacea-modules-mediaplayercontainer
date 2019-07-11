@@ -140,20 +140,20 @@ namespace Panacea.Modules.MediaPlayerContainer
         }
         void DetachFromResponse(IMediaResponse response)
         {
-            response.Opening += _container_Opening;
-            response.Error += _container_Error;
-            response.Playing += _container_Playing;
-            response.Paused += _container_Paused;
-            response.Stopped += _container_Stopped;
-            response.DurationChanged += _container_DurationChanged;
-            response.PositionChanged += _container_PositionChanged;
-            response.Ended += _container_Ended;
+            response.Opening -= _container_Opening;
+            response.Error -= _container_Error;
+            response.Playing -= _container_Playing;
+            response.Paused -= _container_Paused;
+            response.Stopped -= _container_Stopped;
+            response.DurationChanged -= _container_DurationChanged;
+            response.PositionChanged -= _container_PositionChanged;
+            response.Ended -= _container_Ended;
             //response.Click += _container_Click;
-            response.HasNextChanged += _container_HasNextChanged;
-            response.HasPreviousChanged += _container_HasPreviousChanged;
-            response.NowPlaying += _container_NowPlaying;
-            response.HasSubtitlesChanged += _container_HasSubtitlesChanged;
-            response.IsSeekableChanged += _container_IsSeekableChanged;
+            response.HasNextChanged -= _container_HasNextChanged;
+            response.HasPreviousChanged -= _container_HasPreviousChanged;
+            response.NowPlaying -= _container_NowPlaying;
+            response.HasSubtitlesChanged -= _container_HasSubtitlesChanged;
+            response.IsSeekableChanged -= _container_IsSeekableChanged;
         }
         private void _container_IsSeekableChanged(object sender, bool e)
         {
@@ -402,6 +402,7 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void _container_Ended(object sender, EventArgs e)
         {
+            _core.Logger.Info(this, "Ended");
             IsPlaying = false;
             _fullscreenWindow?.Close();
         }
@@ -425,6 +426,7 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void _container_Stopped(object sender, EventArgs e)
         {
+            _core.Logger.Info(this, "Stopped");
             IsPlaying = false;
             PauseButtonVisible = StopButtonVisible = false;
             _fullscreenWindow?.Close();
@@ -437,12 +439,14 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void _container_Opening(object sender, EventArgs e)
         {
+            _core.Logger.Info(this, "Opening");
             SeekbarValue = 0.0;
             SwitchPlayerButtonVisible = _container.AvailablePlayers.Count > 1;
         }
 
         private void _container_Playing(object sender, EventArgs e)
         {
+            _core.Logger.Info(this, "Playing");
             IsPlaying = true;
             _container.CurrentMediaPlayer.VideoControl.RemoveChild();
             CurrentVideoControl = _container.CurrentMediaPlayer.VideoControl;
@@ -453,6 +457,7 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void _container_Error(object sender, Exception e)
         {
+            _core.Logger.Info(this, "Error");
             IsPlaying = false;
             if(_core.TryGetUiManager(out IUiManager ui))
             {
