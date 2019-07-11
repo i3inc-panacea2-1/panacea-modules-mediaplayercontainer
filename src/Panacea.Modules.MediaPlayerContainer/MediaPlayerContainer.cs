@@ -30,6 +30,14 @@ namespace Panacea.Modules.MediaPlayerContainer
         public event EventHandler<IMediaResponse> ResponseChanged ;
         internal void OnError(Exception ex)
         {
+            if (_core.TryGetUiManager(out IUiManager ui))
+            {
+                ui.HidePopup(_control);
+                if (ui.CurrentPage == _control)
+                {
+                    ui.GoBack();
+                }
+            }
             CurrentResponse?.OnError(ex);
         }
         public MediaPlayerContainer(PanaceaServices core)
