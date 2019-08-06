@@ -1,4 +1,5 @@
-﻿using Panacea.Core;
+﻿using Gma.System.MouseKeyHook;
+using Panacea.Core;
 using Panacea.Modularity;
 using Panacea.Modularity.Media;
 using Panacea.Modularity.MediaPlayerContainer;
@@ -18,16 +19,18 @@ namespace Panacea.Modules.MediaPlayerContainer
         private readonly IPluginLoader _loader;
         private MediaPlayerContainerViewModel _control;
         private MediaResponse _currentResponse;
-        public MediaResponse CurrentResponse {
+        public MediaResponse CurrentResponse
+        {
             get => this._currentResponse;
-            set {
+            set
+            {
                 ResponseChanged?.Invoke(this, value);
                 this._currentResponse = value;
             }
         }
         Window _fullscreenWindow;
         public List<IMediaPlayerPlugin> AvailablePlayers { get; private set; }
-        public event EventHandler<IMediaResponse> ResponseChanged ;
+        public event EventHandler<IMediaResponse> ResponseChanged;
 
         public MediaPlayerContainer(PanaceaServices core)
         {
@@ -81,7 +84,6 @@ namespace Panacea.Modules.MediaPlayerContainer
             player.IsPausableChanged += Player_IsPausableChanged;
             player.HasSubtitlesChanged += Player_HasSubtitlesChanged;
             player.DurationChanged += Player_DurationChanged;
-            player.Click += Player_Click;
             player.HasNextChanged += Player_HasNextChanged;
             player.HasPreviousChanged += Player_HasPreviousChanged;
         }
@@ -102,7 +104,6 @@ namespace Panacea.Modules.MediaPlayerContainer
             player.IsPausableChanged -= Player_IsPausableChanged;
             player.HasSubtitlesChanged -= Player_HasSubtitlesChanged;
             player.DurationChanged -= Player_DurationChanged;
-            player.Click -= Player_Click;
             player.HasNextChanged -= Player_HasNextChanged;
             player.HasPreviousChanged -= Player_HasPreviousChanged;
         }
@@ -117,15 +118,12 @@ namespace Panacea.Modules.MediaPlayerContainer
             _currentResponse.HasNext = e;
             _currentResponse.OnHasNextChanged(e);
         }
-        private void Player_Click(object sender, EventArgs e)
-        {
-            if (_pip?.IsVisible == true) return;
-            ExitFullscreen();
-        }
 
-        void ExitFullscreen()
+
+        void ExitFullscreen(bool close)
         {
-            _fullscreenWindow?.Close();
+            if(close)
+                _fullscreenWindow?.Close();
             RemoveChild();
             EmbedPlayer();
             _control.AreControlsVisible = CurrentRequest.ShowControls;
@@ -166,6 +164,7 @@ namespace Panacea.Modules.MediaPlayerContainer
             Refrain();
             CurrentResponse?.OnError(e);
             RemoveChild();
+
             if (_core.TryGetUiManager(out IUiManager ui))
             {
                 ui.HidePopup(_control);
@@ -194,10 +193,10 @@ namespace Panacea.Modules.MediaPlayerContainer
         {
             Refrain();
             CurrentResponse?.OnStopped();
-            if(_core.TryGetUiManager(out IUiManager ui))
+            if (_core.TryGetUiManager(out IUiManager ui))
             {
                 ui.HidePopup(_control);
-                if(ui.CurrentPage == _control)
+                if (ui.CurrentPage == _control)
                 {
                     ui.GoBack();
                 }
@@ -276,7 +275,7 @@ namespace Panacea.Modules.MediaPlayerContainer
             {
                 CurrentMediaPlayer.Stop();
                 DetachFromPlayer(CurrentMediaPlayer);
-                
+
             }
             CurrentRequest = request;
             CurrentResponse = new MediaResponse(request, this);
@@ -309,8 +308,9 @@ namespace Panacea.Modules.MediaPlayerContainer
             try
             {
                 AttachToPlayer(CurrentMediaPlayer);
-                CurrentMediaPlayer.Play(CurrentRequest.Media);
                 EmbedPlayer();
+                CurrentMediaPlayer.Play(CurrentRequest.Media);
+
             }
             catch (Exception ex)
             {
@@ -320,6 +320,7 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         }
 
+        IKeyboardMouseEvents _events = Hook.GlobalEvents();
         public void GoFullscreen()
         {
             _transitioning = true;
@@ -337,20 +338,33 @@ namespace Panacea.Modules.MediaPlayerContainer
                 Content = _control.View,
                 Topmost = true
             };
-            _fullscreenWindow.PreviewMouseDown += _fullscreenWindow_PreviewMouseDown;
+            _fullscreenWindow.Closing += _fullscreenWindow_Closed;
+            _events.MouseClick += MediaPlayerContainer_MouseDown;
             _control.AreControlsVisible = false;
             _fullscreenWindow.Show();
-         }
 
-        private void _fullscreenWindow_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+
+            //_mouseCaptureWindow.Show();
+            //_mouseCaptureWindow.Activate();
+            //_mouseCaptureWindow.Focus();
+        }
+
+        private void _fullscreenWindow_Closed(object sender, EventArgs e)
         {
-            if (_pip?.IsVisible == true) return;
-            ExitFullscreen();
+            _fullscreenWindow.Closing -= _fullscreenWindow_Closed;
+            _events.MouseClick -= MediaPlayerContainer_MouseDown;
+            ExitFullscreen(false);
+        }
+
+        private void MediaPlayerContainer_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            ExitFullscreen(true);
         }
 
         bool _transitioning = false;
         void EmbedPlayer()
         {
+            //_mouseCaptureWindow?.Dispose();
             _transitioning = true;
             _control.FullscreenVisible = true;
             _pip?.Close();
@@ -359,7 +373,7 @@ namespace Panacea.Modules.MediaPlayerContainer
                 case MediaPlayerPosition.Standalone:
                     if (_core.TryGetUiManager(out IUiManager ui))
                     {
-                        
+
                         ui.Navigate(_control, false);
                     }
                     break;
@@ -382,10 +396,10 @@ namespace Panacea.Modules.MediaPlayerContainer
                     }
                     break;
             }
-           
+
         }
 
-        
+
 
         void RemoveChild()
         {

@@ -25,13 +25,14 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            System.Windows.Forms.Cursor.Hide();
+            //System.Windows.Forms.Cursor.Hide();
+            
 
         }
 
         private void Window_Unloaded(object sender, RoutedEventArgs e)
         {
-            System.Windows.Forms.Cursor.Show();
+            //System.Windows.Forms.Cursor.Show();
         }
     }
 }
