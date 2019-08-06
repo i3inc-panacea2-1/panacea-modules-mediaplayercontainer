@@ -120,7 +120,7 @@
                     FontSize="{DynamicResource FontSize-Small}"
                     Foreground="#77ffffff"
                     Text="{multilinguality:Translate 'Now Playing',
-                                                     'core'}" />
+                                                     'MediaPlayerContainer'}" />
                 <TextBlock
                     Grid.Row="1"
                     MaxHeight="300"
