@@ -70,7 +70,7 @@ namespace Panacea.Modules.MediaPlayerContainer
             if (e == null) return;
         }
 
-        private void AttachToPlayer(IMediaPlayerPlugin player)
+        private void AttachToPlayer(IMediaPlayer player)
         {
             player.Opening += Player_Opening;
             player.Playing += Player_Playing;
@@ -90,7 +90,7 @@ namespace Panacea.Modules.MediaPlayerContainer
 
 
 
-        private void DetachFromPlayer(IMediaPlayerPlugin player)
+        private void DetachFromPlayer(IMediaPlayer player)
         {
             player.Opening -= Player_Opening;
             player.Playing -= Player_Playing;
@@ -232,7 +232,7 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         public object CurrentOwner { get; private set; }
 
-        public IMediaPlayerPlugin CurrentMediaPlayer { get; private set; }
+        public IMediaPlayer CurrentMediaPlayer { get; private set; }
 
         public bool IsSeekable => CurrentMediaPlayer.IsSeekable;
 
@@ -266,9 +266,10 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         public IMediaResponse Play(MediaRequest request)
         {
+            
             CreateMediaControl();
             var players = _loader.GetPlugins<IMediaPlayerPlugin>()
-                .Where(p => p.CanPlayChannel(request.Media))
+                .Where(p => p.GetMediaPlayer().CanPlayChannel(request.Media))
                 .ToList();
 
             if (CurrentMediaPlayer != null)
@@ -284,7 +285,7 @@ namespace Panacea.Modules.MediaPlayerContainer
 
             if (players.Count == 1)
             {
-                CurrentMediaPlayer = players.First();
+                CurrentMediaPlayer = players.First().GetMediaPlayer();
                 Player_HasSubtitlesChanged(this, false);
                 _control.AreControlsVisible = request.ShowControls;
                 _control.VideoVisible = request.ShowVideo;
@@ -293,7 +294,15 @@ namespace Panacea.Modules.MediaPlayerContainer
                 Player_IsSeekableChanged(this, false);
                 Player_PositionChanged(this, 0f);
                 Player_DurationChanged(this, TimeSpan.FromSeconds(0));
-                PlayInternal();
+                if (_core.TryGetUiManager(out IUiManager ui))
+                {
+                    ui.DoWhileBusy(async () =>
+                    {
+                        await PlayInternal();
+                    });
+
+                }
+                else _ = PlayInternal();
             }
             else
             {
@@ -302,14 +311,14 @@ namespace Panacea.Modules.MediaPlayerContainer
             return CurrentResponse;
         }
 
-        private void PlayInternal()
+        private async Task PlayInternal()
         {
 
             try
             {
                 AttachToPlayer(CurrentMediaPlayer);
                 EmbedPlayer();
-                CurrentMediaPlayer.Play(CurrentRequest.Media);
+                await CurrentMediaPlayer.Play(CurrentRequest.Media);
 
             }
             catch (Exception ex)
