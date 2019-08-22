@@ -122,7 +122,7 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         void ExitFullscreen(bool close)
         {
-            if(close)
+            if (close)
                 _fullscreenWindow?.Close();
             RemoveChild();
             EmbedPlayer();
@@ -266,7 +266,7 @@ namespace Panacea.Modules.MediaPlayerContainer
 
         public IMediaResponse Play(MediaRequest request)
         {
-            
+
             CreateMediaControl();
             var players = _loader.GetPlugins<IMediaPlayerPlugin>()
                 .Where(p => p.GetMediaPlayer().CanPlayChannel(request.Media))
@@ -294,15 +294,7 @@ namespace Panacea.Modules.MediaPlayerContainer
                 Player_IsSeekableChanged(this, false);
                 Player_PositionChanged(this, 0f);
                 Player_DurationChanged(this, TimeSpan.FromSeconds(0));
-                if (_core.TryGetUiManager(out IUiManager ui))
-                {
-                    ui.DoWhileBusy(async () =>
-                    {
-                        await PlayInternal();
-                    });
-
-                }
-                else _ = PlayInternal();
+                PlayInternal();
             }
             else
             {

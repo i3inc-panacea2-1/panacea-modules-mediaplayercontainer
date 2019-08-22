@@ -10,6 +10,7 @@ namespace Panacea.Modules.MediaPlayerContainer
 {
     public class MediaResponse : IMediaResponse
     {
+        
         public MediaResponse(MediaRequest request, MediaPlayerContainer player)
         {
             Request = request;
