@@ -9,6 +9,7 @@ using System.Linq;
 using System.Windows.Input;
 using System.Windows.Threading;
 using System;
+using System.Diagnostics;
 
 namespace Panacea.Modules.MediaPlayerContainer
 {
@@ -21,9 +22,10 @@ namespace Panacea.Modules.MediaPlayerContainer
         public FullscreenWindow()
         {
             InitializeComponent();
-            //Topmost = false;
-            //WindowState = WindowState.Normal;
-            //ShowInTaskbar = true;
+            if (Debugger.IsAttached)
+            {
+                Topmost = false;
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
