@@ -130,6 +130,8 @@ namespace Panacea.Modules.MediaPlayerContainer
             _control.VideoVisible = CurrentRequest.ShowVideo;
         }
 
+      
+
         private void Player_DurationChanged(object sender, TimeSpan e)
         {
             CurrentResponse.Duration = e;
@@ -193,6 +195,12 @@ namespace Panacea.Modules.MediaPlayerContainer
         {
             Refrain();
             CurrentResponse?.OnStopped();
+
+            if (_fullscreenWindow?.IsVisible == true)
+            {
+                RemoveChild();
+                _fullscreenWindow.Close();
+            }
             if (_core.TryGetUiManager(out IUiManager ui))
             {
                 ui.HidePopup(_control);
@@ -322,7 +330,7 @@ namespace Panacea.Modules.MediaPlayerContainer
         }
 
         IKeyboardMouseEvents _events = Hook.GlobalEvents();
-        public void GoFullscreen()
+        public void GoFullscreen(bool closeWithclick = true)
         {
             _transitioning = true;
             if (_core.TryGetUiManager(out IUiManager ui))
@@ -332,15 +340,16 @@ namespace Panacea.Modules.MediaPlayerContainer
             RemoveChild();
             _fullscreenWindow = new FullscreenWindow()
             {
-                WindowState = WindowState.Maximized,
-                WindowStyle = WindowStyle.None,
-                ResizeMode = ResizeMode.NoResize,
-                ShowInTaskbar = false,
                 Content = _control.View,
-                Topmost = true
+               
             };
-            _fullscreenWindow.Closing += _fullscreenWindow_Closed;
-            _events.MouseClick += MediaPlayerContainer_MouseDown;
+           
+            if (closeWithclick)
+            {
+                _fullscreenWindow.Closing += _fullscreenWindow_Closed;
+                _events.MouseClick += MediaPlayerContainer_MouseDown;
+            }
+
             _control.AreControlsVisible = false;
             _fullscreenWindow.Show();
 
@@ -348,6 +357,13 @@ namespace Panacea.Modules.MediaPlayerContainer
             //_mouseCaptureWindow.Show();
             //_mouseCaptureWindow.Activate();
             //_mouseCaptureWindow.Focus();
+        }
+
+
+
+        public void GoFullscreen()
+        {
+            GoFullscreen(true);
         }
 
         private void _fullscreenWindow_Closed(object sender, EventArgs e)
@@ -374,8 +390,14 @@ namespace Panacea.Modules.MediaPlayerContainer
                 case MediaPlayerPosition.Standalone:
                     if (_core.TryGetUiManager(out IUiManager ui))
                     {
-
-                        ui.Navigate(_control, false);
+                        if (CurrentRequest.FullscreenMode != FullscreenMode.FullscreenOnly)
+                        {
+                            ui.Navigate(_control, false);
+                        }
+                        else
+                        {
+                            GoFullscreen(false);
+                        }
                     }
                     break;
                 case MediaPlayerPosition.Embedded:

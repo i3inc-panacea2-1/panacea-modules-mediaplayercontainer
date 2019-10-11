@@ -12,4 +12,6 @@
     ShowInTaskbar="False"
     Topmost="True"
     WindowStyle="None"
+    WindowState="Maximized"
+    ResizeMode="NoResize"
     mc:Ignorable="d" Loaded="Window_Loaded" Unloaded="Window_Unloaded" />

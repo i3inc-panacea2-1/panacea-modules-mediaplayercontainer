@@ -21,6 +21,9 @@ namespace Panacea.Modules.MediaPlayerContainer
         public FullscreenWindow()
         {
             InitializeComponent();
+            //Topmost = false;
+            //WindowState = WindowState.Normal;
+            //ShowInTaskbar = true;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
